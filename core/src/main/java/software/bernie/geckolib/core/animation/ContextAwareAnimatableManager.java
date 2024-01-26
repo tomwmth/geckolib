@@ -100,6 +100,7 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
      * Attempt to trigger an animation from a given controller name and registered triggerable animation name.<br>
      * This pseudo-overloaded method checks each controller in turn until one of them accepts the trigger.<br>
      * This can be sped up by specifying which controller you intend to receive the trigger in {@link AnimatableManager#tryTriggerAnimation(String, String)}
+     *
      * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link software.bernie.geckolib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
      */
     public void tryTriggerAnimation(String animName) {
@@ -110,8 +111,9 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
 
     /**
      * Attempt to trigger an animation from a given controller name and registered triggerable animation name
+     *
      * @param controllerName The name of the controller name the animation belongs to
-     * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link software.bernie.geckolib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
+     * @param animName       The name of animation to trigger. This needs to have been registered with the controller via {@link software.bernie.geckolib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
      */
     public void tryTriggerAnimation(String controllerName, String animName) {
         for (AnimatableManager<T> manager : this.managers.values()) {
@@ -122,8 +124,9 @@ public abstract class ContextAwareAnimatableManager<T extends GeoAnimatable, C> 
     /**
      * Set a custom data point to be used later.<br>
      * Sub-managers do not have their data set, and instead it is all kept in this parent manager
+     *
      * @param dataTicket The DataTicket for the data point
-     * @param data The piece of data to store
+     * @param data       The piece of data to store
      */
     public <D> void setData(DataTicket<D> dataTicket, D data) {
         super.setData(dataTicket, data);

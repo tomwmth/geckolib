@@ -1,18 +1,7 @@
 package com.eliotlash.mclib.math;
 
 import com.eliotlash.mclib.math.functions.Function;
-import com.eliotlash.mclib.math.functions.classic.ACos;
-import com.eliotlash.mclib.math.functions.classic.ASin;
-import com.eliotlash.mclib.math.functions.classic.ATan;
-import com.eliotlash.mclib.math.functions.classic.ATan2;
-import com.eliotlash.mclib.math.functions.classic.Abs;
-import com.eliotlash.mclib.math.functions.classic.Cos;
-import com.eliotlash.mclib.math.functions.classic.Exp;
-import com.eliotlash.mclib.math.functions.classic.Ln;
-import com.eliotlash.mclib.math.functions.classic.Mod;
-import com.eliotlash.mclib.math.functions.classic.Pow;
-import com.eliotlash.mclib.math.functions.classic.Sin;
-import com.eliotlash.mclib.math.functions.classic.Sqrt;
+import com.eliotlash.mclib.math.functions.classic.*;
 import com.eliotlash.mclib.math.functions.limit.Clamp;
 import com.eliotlash.mclib.math.functions.limit.Max;
 import com.eliotlash.mclib.math.functions.limit.Min;
@@ -20,13 +9,8 @@ import com.eliotlash.mclib.math.functions.rounding.Ceil;
 import com.eliotlash.mclib.math.functions.rounding.Floor;
 import com.eliotlash.mclib.math.functions.rounding.Round;
 import com.eliotlash.mclib.math.functions.rounding.Trunc;
-import com.eliotlash.mclib.math.functions.utility.DieRoll;
-import com.eliotlash.mclib.math.functions.utility.DieRollInteger;
-import com.eliotlash.mclib.math.functions.utility.HermiteBlend;
-import com.eliotlash.mclib.math.functions.utility.Lerp;
-import com.eliotlash.mclib.math.functions.utility.LerpRotate;
-import com.eliotlash.mclib.math.functions.utility.Random;
-import com.eliotlash.mclib.math.functions.utility.RandomInteger;
+import com.eliotlash.mclib.math.functions.utility.*;
+
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,7 +86,8 @@ public class MathBuilder {
         ArrayList<Object> symbols = new ArrayList<>();
         StringBuilder buffer = new StringBuilder();
         int len = chars.length;
-        block0: for (int i = 0; i < len; ++i) {
+        block0:
+        for (int i = 0; i < len; ++i) {
             boolean longOperator;
             String s = chars[i];
             boolean bl = longOperator = i > 0 && this.isOperator(chars[i - 1] + s);
@@ -173,22 +158,22 @@ public class MathBuilder {
             Object first = symbols.get(0);
             Object second = symbols.get(1);
             if ((this.isVariable(first) || first.equals("-")) && second instanceof List) {
-                return this.createFunction((String)first, (List) second);
+                return this.createFunction((String) first, (List) second);
             }
         }
         int op = lastOp = this.seekLastOperator(symbols);
         while (op != -1) {
             int leftOp = this.seekLastOperator(symbols, op - 1);
             if (leftOp != -1) {
-                Operation left = this.operationForOperator((String)symbols.get(leftOp));
-                Operation right = this.operationForOperator((String)symbols.get(op));
+                Operation left = this.operationForOperator((String) symbols.get(leftOp));
+                Operation right = this.operationForOperator((String) symbols.get(op));
                 if (right.value > left.value) {
                     IValue leftValue = this.parseSymbols(symbols.subList(0, leftOp));
                     IValue rightValue = this.parseSymbols(symbols.subList(leftOp + 1, size));
                     return new Operator(left, leftValue, rightValue);
                 }
                 if (left.value > right.value) {
-                    Operation initial = this.operationForOperator((String)symbols.get(lastOp));
+                    Operation initial = this.operationForOperator((String) symbols.get(lastOp));
                     if (initial.value < left.value) {
                         IValue leftValue = this.parseSymbols(symbols.subList(0, lastOp));
                         IValue rightValue = this.parseSymbols(symbols.subList(lastOp + 1, size));
@@ -201,7 +186,7 @@ public class MathBuilder {
             }
             op = leftOp;
         }
-        Operation operation = this.operationForOperator((String)symbols.get(lastOp));
+        Operation operation = this.operationForOperator((String) symbols.get(lastOp));
         return new Operator(operation, this.parseSymbols(symbols.subList(0, lastOp)), this.parseSymbols(symbols.subList(lastOp + 1, size)));
     }
 
@@ -296,7 +281,7 @@ public class MathBuilder {
 
     public IValue valueFromObject(Object object) throws Exception {
         if (object instanceof String) {
-            String symbol = (String)object;
+            String symbol = (String) object;
             if (symbol.startsWith("!")) {
                 return new Negate(this.valueFromObject(symbol.substring(1)));
             }
@@ -335,11 +320,11 @@ public class MathBuilder {
     }
 
     protected boolean isVariable(Object o) {
-        return o instanceof String && !this.isDecimal((String)o) && !this.isOperator((String)o);
+        return o instanceof String && !this.isDecimal((String) o) && !this.isOperator((String) o);
     }
 
     protected boolean isOperator(Object o) {
-        return o instanceof String && this.isOperator((String)o);
+        return o instanceof String && this.isOperator((String) o);
     }
 
     protected boolean isOperator(String s) {

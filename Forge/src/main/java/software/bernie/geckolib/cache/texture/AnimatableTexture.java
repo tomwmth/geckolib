@@ -28,240 +28,236 @@ import java.util.List;
  * Wrapper for {@link net.minecraft.client.renderer.texture.SimpleTexture SimpleTexture} implementation allowing for casual use of animated non-atlas textures
  */
 public class AnimatableTexture extends SimpleTexture {
-	private AnimationContents animationContents = null;
+    private AnimationContents animationContents = null;
 
-	public AnimatableTexture(final ResourceLocation location) {
-		super(location);
-	}
+    public AnimatableTexture(final ResourceLocation location) {
+        super(location);
+    }
 
-	@Override
-	public void load(ResourceManager manager) throws IOException {
-		Resource resource = manager.getResourceOrThrow(this.location);
+    public static void setAndUpdate(ResourceLocation texturePath) {
+        setAndUpdate(texturePath, (int) RenderUtils.getCurrentTick());
+    }
 
-		try {
-			NativeImage nativeImage;
+    /**
+     * Setting a specific frame for the animated texture does not work well because of how Minecraft buffers rendering passes.
+     * <p>Use the non-specified method above unless you know what you're doing</p>
+     */
+    public static void setAndUpdate(ResourceLocation texturePath, int frameTick) {
+        AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(texturePath);
 
-			try (InputStream inputstream = resource.open()) {
-				nativeImage = NativeImage.read(inputstream);
-			}
+        if (texture instanceof AnimatableTexture animatableTexture)
+            animatableTexture.setAnimationFrame(frameTick);
 
-			this.animationContents = resource.metadata().getSection(AnimationMetadataSection.SERIALIZER).map(animMeta -> new AnimationContents(nativeImage, animMeta)).orElse(null);
+        RenderSystem.setShaderTexture(0, texture.getId());
+    }
 
-			if (this.animationContents != null) {
-				if (!this.animationContents.isValid()) {
-					nativeImage.close();
+    private static void onRenderThread(RenderCall renderCall) {
+        if (!RenderSystem.isOnRenderThread()) {
+            RenderSystem.recordRenderCall(renderCall);
+        } else {
+            renderCall.execute();
+        }
+    }
 
-					return;
-				}
+    @Override
+    public void load(ResourceManager manager) throws IOException {
+        Resource resource = manager.getResourceOrThrow(this.location);
 
-				onRenderThread(() -> {
-					TextureUtil.prepareImage(getId(), 0, this.animationContents.frameSize.width(), this.animationContents.frameSize.height());
-					nativeImage.upload(0, 0, 0, 0, 0, this.animationContents.frameSize.width(), this.animationContents.frameSize.height(), false, false);
-				});
+        try {
+            NativeImage nativeImage;
 
-				return;
-			}
-		}
-		catch (RuntimeException exception) {
-			GeckoLib.LOGGER.warn("Failed reading metadata of: {}", this.location, exception);
-		}
+            try (InputStream inputstream = resource.open()) {
+                nativeImage = NativeImage.read(inputstream);
+            }
 
-		super.load(manager);
-	}
+            this.animationContents = resource.metadata().getSection(AnimationMetadataSection.SERIALIZER).map(animMeta -> new AnimationContents(nativeImage, animMeta)).orElse(null);
 
-	public static void setAndUpdate(ResourceLocation texturePath) {
-		setAndUpdate(texturePath, (int)RenderUtils.getCurrentTick());
-	}
+            if (this.animationContents != null) {
+                if (!this.animationContents.isValid()) {
+                    nativeImage.close();
 
-	/**
-	 * Setting a specific frame for the animated texture does not work well because of how Minecraft buffers rendering passes.
-	 * <p>Use the non-specified method above unless you know what you're doing</p>
-	 */
-	public static void setAndUpdate(ResourceLocation texturePath, int frameTick) {
-		AbstractTexture texture = Minecraft.getInstance().getTextureManager().getTexture(texturePath);
+                    return;
+                }
 
-		if (texture instanceof AnimatableTexture animatableTexture)
-			animatableTexture.setAnimationFrame(frameTick);
+                onRenderThread(() -> {
+                    TextureUtil.prepareImage(getId(), 0, this.animationContents.frameSize.width(), this.animationContents.frameSize.height());
+                    nativeImage.upload(0, 0, 0, 0, 0, this.animationContents.frameSize.width(), this.animationContents.frameSize.height(), false, false);
+                });
 
-		RenderSystem.setShaderTexture(0, texture.getId());
-	}
+                return;
+            }
+        } catch (RuntimeException exception) {
+            GeckoLib.LOGGER.warn("Failed reading metadata of: {}", this.location, exception);
+        }
 
-	public void setAnimationFrame(int tick) {
-		if (this.animationContents != null)
-			this.animationContents.animatedTexture.setCurrentFrame(tick);
-	}
+        super.load(manager);
+    }
 
-	private static void onRenderThread(RenderCall renderCall) {
-		if (!RenderSystem.isOnRenderThread()) {
-			RenderSystem.recordRenderCall(renderCall);
-		}
-		else {
-			renderCall.execute();
-		}
-	}
+    public void setAnimationFrame(int tick) {
+        if (this.animationContents != null)
+            this.animationContents.animatedTexture.setCurrentFrame(tick);
+    }
 
-	private class AnimationContents {
-		private final FrameSize frameSize;
-		private final Texture animatedTexture;
+    private class AnimationContents {
+        private final FrameSize frameSize;
+        private final Texture animatedTexture;
 
-		private AnimationContents(NativeImage image, AnimationMetadataSection animMeta) {
-			this.frameSize = animMeta.calculateFrameSize(image.getWidth(), image.getHeight());
-			this.animatedTexture = generateAnimatedTexture(image, animMeta);
-		}
+        private AnimationContents(NativeImage image, AnimationMetadataSection animMeta) {
+            this.frameSize = animMeta.calculateFrameSize(image.getWidth(), image.getHeight());
+            this.animatedTexture = generateAnimatedTexture(image, animMeta);
+        }
 
-		private boolean isValid() {
-			return this.animatedTexture != null;
-		}
+        private boolean isValid() {
+            return this.animatedTexture != null;
+        }
 
-		private Texture generateAnimatedTexture(NativeImage image, AnimationMetadataSection animMeta) {
-			if (!Mth.isMultipleOf(image.getWidth(), this.frameSize.width()) || !Mth.isMultipleOf(image.getHeight(), this.frameSize.height())) {
-				GeckoLib.LOGGER.error("Image {} size {},{} is not multiple of frame size {},{}", AnimatableTexture.this.location, image.getWidth(), image.getHeight(), this.frameSize.width(), this.frameSize.height());
+        private Texture generateAnimatedTexture(NativeImage image, AnimationMetadataSection animMeta) {
+            if (!Mth.isMultipleOf(image.getWidth(), this.frameSize.width()) || !Mth.isMultipleOf(image.getHeight(), this.frameSize.height())) {
+                GeckoLib.LOGGER.error("Image {} size {},{} is not multiple of frame size {},{}", AnimatableTexture.this.location, image.getWidth(), image.getHeight(), this.frameSize.width(), this.frameSize.height());
 
-				return null;
-			}
+                return null;
+            }
 
-			int columns = image.getWidth() / this.frameSize.width();
-			int rows = image.getHeight() / this.frameSize.height();
-			int frameCount = columns * rows;
-			List<Frame> frames = new ObjectArrayList<>();
+            int columns = image.getWidth() / this.frameSize.width();
+            int rows = image.getHeight() / this.frameSize.height();
+            int frameCount = columns * rows;
+            List<Frame> frames = new ObjectArrayList<>();
 
-			animMeta.forEachFrame((frame, frameTime) -> frames.add(new Frame(frame, frameTime)));
+            animMeta.forEachFrame((frame, frameTime) -> frames.add(new Frame(frame, frameTime)));
 
-			if (frames.isEmpty()) {
-				for(int frame = 0; frame < frameCount; ++frame) {
-					frames.add(new Frame(frame, animMeta.getDefaultFrameTime()));
-				}
-			}
-			else {
-				int index = 0;
-				IntSet unusedFrames = new IntOpenHashSet();
+            if (frames.isEmpty()) {
+                for (int frame = 0; frame < frameCount; ++frame) {
+                    frames.add(new Frame(frame, animMeta.getDefaultFrameTime()));
+                }
+            } else {
+                int index = 0;
+                IntSet unusedFrames = new IntOpenHashSet();
 
-				for (Frame frame : frames) {
-					if (frame.time <= 0) {
-						GeckoLib.LOGGER.warn("Invalid frame duration on sprite {} frame {}: {}", AnimatableTexture.this.location, index, frame.time);
-						unusedFrames.add(frame.index);
-					}
-					else if (frame.index < 0 || frame.index >= frameCount) {
-						GeckoLib.LOGGER.warn("Invalid frame index on sprite {} frame {}: {}", AnimatableTexture.this.location, index, frame.index);
-						unusedFrames.add(frame.index);
-					}
+                for (Frame frame : frames) {
+                    if (frame.time <= 0) {
+                        GeckoLib.LOGGER.warn("Invalid frame duration on sprite {} frame {}: {}", AnimatableTexture.this.location, index, frame.time);
+                        unusedFrames.add(frame.index);
+                    } else if (frame.index < 0 || frame.index >= frameCount) {
+                        GeckoLib.LOGGER.warn("Invalid frame index on sprite {} frame {}: {}", AnimatableTexture.this.location, index, frame.index);
+                        unusedFrames.add(frame.index);
+                    }
 
-					index++;
-				}
+                    index++;
+                }
 
-				if (!unusedFrames.isEmpty())
-					GeckoLib.LOGGER.warn("Unused frames in sprite {}: {}", AnimatableTexture.this.location, Arrays.toString(unusedFrames.toArray()));
-			}
+                if (!unusedFrames.isEmpty())
+                    GeckoLib.LOGGER.warn("Unused frames in sprite {}: {}", AnimatableTexture.this.location, Arrays.toString(unusedFrames.toArray()));
+            }
 
-			return frames.size() <= 1 ? null : new Texture(image, frames.toArray(new Frame[0]), columns, animMeta.isInterpolatedFrames());
-		}
+            return frames.size() <= 1 ? null : new Texture(image, frames.toArray(new Frame[0]), columns, animMeta.isInterpolatedFrames());
+        }
 
-		private record Frame(int index, int time) {}
+        private record Frame(int index, int time) {
+        }
 
-		private class Texture implements AutoCloseable {
-			private final NativeImage baseImage;
-			private final Frame[] frames;
-			private final int framePanelSize;
-			private final boolean interpolating;
-			private final NativeImage interpolatedFrame;
-			private final int totalFrameTime;
+        private class Texture implements AutoCloseable {
+            private final NativeImage baseImage;
+            private final Frame[] frames;
+            private final int framePanelSize;
+            private final boolean interpolating;
+            private final NativeImage interpolatedFrame;
+            private final int totalFrameTime;
 
-			private int currentFrame;
-			private int currentSubframe;
+            private int currentFrame;
+            private int currentSubframe;
 
-			private Texture(NativeImage baseImage, Frame[] frames, int framePanelSize, boolean interpolating) {
-				this.baseImage = baseImage;
-				this.frames = frames;
-				this.framePanelSize = framePanelSize;
-				this.interpolating = interpolating;
-				this.interpolatedFrame = interpolating ? new NativeImage(AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false) : null;
-				int time = 0;
+            private Texture(NativeImage baseImage, Frame[] frames, int framePanelSize, boolean interpolating) {
+                this.baseImage = baseImage;
+                this.frames = frames;
+                this.framePanelSize = framePanelSize;
+                this.interpolating = interpolating;
+                this.interpolatedFrame = interpolating ? new NativeImage(AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false) : null;
+                int time = 0;
 
-				for (Frame frame : this.frames) {
-					time += frame.time;
-				}
+                for (Frame frame : this.frames) {
+                    time += frame.time;
+                }
 
-				this.totalFrameTime = time;
-			}
+                this.totalFrameTime = time;
+            }
 
-			private int getFrameX(int frameIndex) {
-				return frameIndex % this.framePanelSize;
-			}
+            private int getFrameX(int frameIndex) {
+                return frameIndex % this.framePanelSize;
+            }
 
-			private int getFrameY(int frameIndex) {
-				return frameIndex / this.framePanelSize;
-			}
+            private int getFrameY(int frameIndex) {
+                return frameIndex / this.framePanelSize;
+            }
 
-			public void setCurrentFrame(int ticks) {
-				ticks %= this.totalFrameTime;
+            public void setCurrentFrame(int ticks) {
+                ticks %= this.totalFrameTime;
 
-				if (ticks == this.currentSubframe)
-					return;
+                if (ticks == this.currentSubframe)
+                    return;
 
-				int lastSubframe = this.currentSubframe;
-				int lastFrame = this.currentFrame;
-				int time = 0;
+                int lastSubframe = this.currentSubframe;
+                int lastFrame = this.currentFrame;
+                int time = 0;
 
-				for (Frame frame : this.frames) {
-					time += frame.time;
+                for (Frame frame : this.frames) {
+                    time += frame.time;
 
-					if (ticks < time) {
-						this.currentFrame = frame.index;
-						this.currentSubframe = ticks % frame.time;
+                    if (ticks < time) {
+                        this.currentFrame = frame.index;
+                        this.currentSubframe = ticks % frame.time;
 
-						break;
-					}
-				}
+                        break;
+                    }
+                }
 
-				if (this.currentFrame != lastFrame && this.currentSubframe == 0) {
-					onRenderThread(() -> {
-						TextureUtil.prepareImage(AnimatableTexture.this.getId(), 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height());
-						this.baseImage.upload(0, 0, 0, getFrameX(this.currentFrame) * AnimationContents.this.frameSize.width(), getFrameY(this.currentFrame) * AnimationContents.this.frameSize.height(), AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false, false);
-					});
-				}
-				else if (this.currentSubframe != lastSubframe && this.interpolating) {
-					onRenderThread(this::generateInterpolatedFrame);
-				}
-			}
+                if (this.currentFrame != lastFrame && this.currentSubframe == 0) {
+                    onRenderThread(() -> {
+                        TextureUtil.prepareImage(AnimatableTexture.this.getId(), 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height());
+                        this.baseImage.upload(0, 0, 0, getFrameX(this.currentFrame) * AnimationContents.this.frameSize.width(), getFrameY(this.currentFrame) * AnimationContents.this.frameSize.height(), AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false, false);
+                    });
+                } else if (this.currentSubframe != lastSubframe && this.interpolating) {
+                    onRenderThread(this::generateInterpolatedFrame);
+                }
+            }
 
-			private void generateInterpolatedFrame() {
-				Frame frame = this.frames[this.currentFrame];
-				double frameProgress = 1 - (double)this.currentSubframe / (double)frame.time;
-				int nextFrameIndex = this.frames[(this.currentFrame + 1) % this.frames.length].index;
+            private void generateInterpolatedFrame() {
+                Frame frame = this.frames[this.currentFrame];
+                double frameProgress = 1 - (double) this.currentSubframe / (double) frame.time;
+                int nextFrameIndex = this.frames[(this.currentFrame + 1) % this.frames.length].index;
 
-				if (frame.index != nextFrameIndex) {
-					for(int y = 0; y < this.interpolatedFrame.getHeight(); ++y) {
-						for(int x = 0; x < this.interpolatedFrame.getWidth(); ++x) {
-							int prevFramePixel = getPixel(frame.index, x, y);
-							int nextFramePixel = getPixel(nextFrameIndex, x, y);
-							int blendedRed = interpolate(frameProgress, prevFramePixel >> 16 & 255, nextFramePixel >> 16 & 255);
-							int blendedGreen = interpolate(frameProgress, prevFramePixel >> 8 & 255, nextFramePixel >> 8 & 255);
-							int blendedBlue = interpolate(frameProgress, prevFramePixel & 255, nextFramePixel & 255);
+                if (frame.index != nextFrameIndex) {
+                    for (int y = 0; y < this.interpolatedFrame.getHeight(); ++y) {
+                        for (int x = 0; x < this.interpolatedFrame.getWidth(); ++x) {
+                            int prevFramePixel = getPixel(frame.index, x, y);
+                            int nextFramePixel = getPixel(nextFrameIndex, x, y);
+                            int blendedRed = interpolate(frameProgress, prevFramePixel >> 16 & 255, nextFramePixel >> 16 & 255);
+                            int blendedGreen = interpolate(frameProgress, prevFramePixel >> 8 & 255, nextFramePixel >> 8 & 255);
+                            int blendedBlue = interpolate(frameProgress, prevFramePixel & 255, nextFramePixel & 255);
 
-							this.interpolatedFrame.setPixelRGBA(x, y, prevFramePixel & -16777216 | blendedRed << 16 | blendedGreen << 8 | blendedBlue);
-						}
-					}
+                            this.interpolatedFrame.setPixelRGBA(x, y, prevFramePixel & -16777216 | blendedRed << 16 | blendedGreen << 8 | blendedBlue);
+                        }
+                    }
 
-					TextureUtil.prepareImage(AnimatableTexture.this.getId(), 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height());
-					this.interpolatedFrame.upload(0, 0, 0, 0, 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false, false);
-				}
-			}
+                    TextureUtil.prepareImage(AnimatableTexture.this.getId(), 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height());
+                    this.interpolatedFrame.upload(0, 0, 0, 0, 0, AnimationContents.this.frameSize.width(), AnimationContents.this.frameSize.height(), false, false);
+                }
+            }
 
-			private int getPixel(int frameIndex, int x, int y) {
-				return this.baseImage.getPixelRGBA(x + getFrameX(frameIndex) * AnimationContents.this.frameSize.width(), y + getFrameY(frameIndex) * AnimationContents.this.frameSize.height());
-			}
+            private int getPixel(int frameIndex, int x, int y) {
+                return this.baseImage.getPixelRGBA(x + getFrameX(frameIndex) * AnimationContents.this.frameSize.width(), y + getFrameY(frameIndex) * AnimationContents.this.frameSize.height());
+            }
 
-			private int interpolate(double frameProgress, double prevColour, double nextColour) {
-				return (int)(frameProgress * prevColour + (1 - frameProgress) * nextColour);
-			}
+            private int interpolate(double frameProgress, double prevColour, double nextColour) {
+                return (int) (frameProgress * prevColour + (1 - frameProgress) * nextColour);
+            }
 
-			@Override
-			public void close() {
-				this.baseImage.close();
+            @Override
+            public void close() {
+                this.baseImage.close();
 
-				if (this.interpolatedFrame != null)
-					this.interpolatedFrame.close();
-			}
-		}
-	}
+                if (this.interpolatedFrame != null)
+                    this.interpolatedFrame.close();
+            }
+        }
+    }
 }

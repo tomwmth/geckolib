@@ -15,37 +15,38 @@ import software.bernie.geckolib.util.ClientUtils;
 /**
  * Packet for syncing user-definable animation data for {@link SingletonGeoAnimatable} instances
  */
-public record AnimDataSyncPacket<D>(String syncableId, long instanceId, SerializableDataTicket<D> dataTicket, D data) implements CustomPacketPayload {
-	public static final ResourceLocation ID = new ResourceLocation(GeckoLib.MOD_ID, "anim_data_sync");
+public record AnimDataSyncPacket<D>(String syncableId, long instanceId, SerializableDataTicket<D> dataTicket,
+                                    D data) implements CustomPacketPayload {
+    public static final ResourceLocation ID = new ResourceLocation(GeckoLib.MOD_ID, "anim_data_sync");
 
-	@Override
-	public ResourceLocation id() {
-		return ID;
-	}
+    public static <D> AnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
+        String syncableId = buffer.readUtf();
+        long instanceId = buffer.readVarLong();
+        SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readUtf());
+        D data = dataTicket.decode(buffer);
 
-	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeUtf(this.syncableId);
-		buffer.writeVarLong(this.instanceId);
-		buffer.writeUtf(this.dataTicket.id());
-		this.dataTicket.encode(this.data, buffer);
-	}
+        return new AnimDataSyncPacket<>(syncableId, instanceId, dataTicket, data);
+    }
 
-	public static <D> AnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
-		String syncableId = buffer.readUtf();
-		long instanceId = buffer.readVarLong();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>)DataTickets.byName(buffer.readUtf());
-		D data = dataTicket.decode(buffer);
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
 
-		return new AnimDataSyncPacket<>(syncableId, instanceId, dataTicket, data);
-	}
+    @Override
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeUtf(this.syncableId);
+        buffer.writeVarLong(this.instanceId);
+        buffer.writeUtf(this.dataTicket.id());
+        this.dataTicket.encode(this.data, buffer);
+    }
 
-	public void receivePacket(PlayPayloadContext context) {
-		context.workHandler().execute(() -> {
-			GeoAnimatable animatable = GeckoLibNetwork.getSyncedAnimatable(this.syncableId);
+    public void receivePacket(PlayPayloadContext context) {
+        context.workHandler().execute(() -> {
+            GeoAnimatable animatable = GeckoLibNetwork.getSyncedAnimatable(this.syncableId);
 
-			if (animatable instanceof SingletonGeoAnimatable singleton)
-				singleton.setAnimData(ClientUtils.getClientPlayer(), this.instanceId, this.dataTicket, this.data);
-		});
-	}
+            if (animatable instanceof SingletonGeoAnimatable singleton)
+                singleton.setAnimData(ClientUtils.getClientPlayer(), this.instanceId, this.dataTicket, this.data);
+        });
+    }
 }

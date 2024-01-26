@@ -14,16 +14,17 @@ import software.bernie.geckolib.model.GeoModel;
 
 /**
  * Example {@link GeoModel} for the {@link GeckoHabitatBlockEntity}
+ *
  * @see GeckoHabitatBlockEntity
  * @see GeckoHabitatBlockRenderer
  */
 public class GeckoHabitatModel extends DefaultedBlockGeoModel<GeckoHabitatBlockEntity> {
-	public GeckoHabitatModel() {
-		super(new ResourceLocation(GeckoLib.MOD_ID, "gecko_habitat"));
-	}
+    public GeckoHabitatModel() {
+        super(new ResourceLocation(GeckoLib.MOD_ID, "gecko_habitat"));
+    }
 
-	@Override
-	public RenderType getRenderType(GeckoHabitatBlockEntity animatable, ResourceLocation texture) {
-		return RenderType.entityTranslucent(getTextureResource(animatable));
-	}
+    @Override
+    public RenderType getRenderType(GeckoHabitatBlockEntity animatable, ResourceLocation texture) {
+        return RenderType.entityTranslucent(getTextureResource(animatable));
+    }
 }

@@ -29,167 +29,166 @@ import java.util.Map;
  * Acts as the deserialization interface for {@code BakedAnimations}
  */
 public class BakedAnimationsAdapter implements JsonDeserializer<BakedAnimations> {
-	@Override
-	public BakedAnimations deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-		JsonObject obj = json.getAsJsonObject();
-		Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
+    private static List<Pair<String, JsonElement>> getTripletObj(JsonElement element) {
+        if (element == null)
+            return List.of();
 
-		for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-			try {
-				animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), context));
-			}
-			catch (MolangException ex) {
-				GeckoLib.LOGGER.error("Unable to parse animation: " + entry.getKey());
-				ex.printStackTrace();
-			}
-		}
+        if (element instanceof JsonPrimitive primitive) {
+            JsonArray array = new JsonArray(3);
 
-		return new BakedAnimations(animations);
-	}
+            array.add(primitive);
+            array.add(primitive);
+            array.add(primitive);
 
-	private Animation bakeAnimation(String name, JsonObject animationObj, JsonDeserializationContext context) throws MolangException {
-		double length = animationObj.has("animation_length") ? GsonHelper.getAsDouble(animationObj, "animation_length") * 20d : -1;
-		Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
-		BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
-		Animation.Keyframes keyframes = context.deserialize(animationObj, Animation.Keyframes.class);
+            element = array;
+        }
 
-		if (length == -1)
-			length = calculateAnimationLength(boneAnimations);
+        if (element instanceof JsonArray array)
+            return ObjectArrayList.of(Pair.of("0", array));
 
-		return new Animation(name, length, loopType, boneAnimations, keyframes);
-	}
+        if (element instanceof JsonObject obj) {
+            List<Pair<String, JsonElement>> list = new ObjectArrayList<>();
 
-	private BoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws MolangException {
-		BoneAnimation[] animations = new BoneAnimation[bonesObj.size()];
-		int index = 0;
+            for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                if (entry.getValue() instanceof JsonObject entryObj && !entryObj.has("vector")) {
+                    String timestamp = entry.getKey();
+                    double time = NumberUtils.isCreatable(timestamp) ? Double.parseDouble(timestamp) : 0;
 
-		for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
-			JsonObject entryObj = entry.getValue().getAsJsonObject();
-			KeyframeStack<Keyframe<IValue>> scaleFrames = buildKeyframeStack(
-					getTripletObj(entryObj.get("scale")), false);
-			KeyframeStack<Keyframe<IValue>> positionFrames = buildKeyframeStack(
-					getTripletObj(entryObj.get("position")), false);
-			KeyframeStack<Keyframe<IValue>> rotationFrames = buildKeyframeStack(
-					getTripletObj(entryObj.get("rotation")), true);
+                    if (entryObj.has("pre")) {
+                        JsonElement postElement = entryObj.get("pre");
+                        JsonArray array = postElement.isJsonArray() ? postElement.getAsJsonArray() : GsonHelper.getAsJsonArray(postElement.getAsJsonObject(), "vector");
 
-			animations[index] = new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames);
-			index++;
-		}
+                        list.add(Pair.of(timestamp, array));
+                    }
 
-		return animations;
-	}
+                    if (entryObj.has("post")) {
+                        JsonElement postElement = entryObj.get("post");
+                        JsonArray array = postElement.isJsonArray() ? postElement.getAsJsonArray() : GsonHelper.getAsJsonArray(postElement.getAsJsonObject(), "vector");
 
-	private static List<Pair<String, JsonElement>> getTripletObj(JsonElement element) {
-		if (element == null)
-			return List.of();
+                        list.add(Pair.of(String.valueOf(time + 0.0000001), array));
+                    }
 
-		if (element instanceof JsonPrimitive primitive) {
-			JsonArray array = new JsonArray(3);
+                    continue;
+                }
 
-			array.add(primitive);
-			array.add(primitive);
-			array.add(primitive);
+                list.add(Pair.of(entry.getKey(), entry.getValue()));
+            }
 
-			element = array;
-		}
+            return list;
+        }
 
-		if (element instanceof JsonArray array)
-			return ObjectArrayList.of(Pair.of("0", array));
+        throw new JsonParseException("Invalid object type provided to getTripletObj, got: " + element);
+    }
 
-		if (element instanceof JsonObject obj) {
-			List<Pair<String, JsonElement>> list = new ObjectArrayList<>();
+    private static double calculateAnimationLength(BoneAnimation[] boneAnimations) {
+        double length = 0;
 
-			for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-				if (entry.getValue() instanceof JsonObject entryObj && !entryObj.has("vector")) {
-					String timestamp = entry.getKey();
-					double time = NumberUtils.isCreatable(timestamp) ? Double.parseDouble(timestamp) : 0;
+        for (BoneAnimation animation : boneAnimations) {
+            length = Math.max(length, animation.rotationKeyFrames().getLastKeyframeTime());
+            length = Math.max(length, animation.positionKeyFrames().getLastKeyframeTime());
+            length = Math.max(length, animation.scaleKeyFrames().getLastKeyframeTime());
+        }
 
-					if (entryObj.has("pre")) {
-						JsonElement postElement = entryObj.get("pre");
-						JsonArray array = postElement.isJsonArray() ? postElement.getAsJsonArray() : GsonHelper.getAsJsonArray(postElement.getAsJsonObject(), "vector");
+        return length == 0 ? Double.MAX_VALUE : length;
+    }
 
-						list.add(Pair.of(timestamp, array));
-					}
+    @Override
+    public BakedAnimations deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+        JsonObject obj = json.getAsJsonObject();
+        Map<String, Animation> animations = new Object2ObjectOpenHashMap<>(obj.size());
 
-					if (entryObj.has("post")) {
-						JsonElement postElement = entryObj.get("post");
-						JsonArray array = postElement.isJsonArray() ? postElement.getAsJsonArray() : GsonHelper.getAsJsonArray(postElement.getAsJsonObject(), "vector");
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            try {
+                animations.put(entry.getKey(), bakeAnimation(entry.getKey(), entry.getValue().getAsJsonObject(), context));
+            } catch (MolangException ex) {
+                GeckoLib.LOGGER.error("Unable to parse animation: " + entry.getKey());
+                ex.printStackTrace();
+            }
+        }
 
-						list.add(Pair.of(String.valueOf(time + 0.0000001), array));
-					}
+        return new BakedAnimations(animations);
+    }
 
-					continue;
-				}
+    private Animation bakeAnimation(String name, JsonObject animationObj, JsonDeserializationContext context) throws MolangException {
+        double length = animationObj.has("animation_length") ? GsonHelper.getAsDouble(animationObj, "animation_length") * 20d : -1;
+        Animation.LoopType loopType = Animation.LoopType.fromJson(animationObj.get("loop"));
+        BoneAnimation[] boneAnimations = bakeBoneAnimations(GsonHelper.getAsJsonObject(animationObj, "bones", new JsonObject()));
+        Animation.Keyframes keyframes = context.deserialize(animationObj, Animation.Keyframes.class);
 
-				list.add(Pair.of(entry.getKey(), entry.getValue()));
-			}
+        if (length == -1)
+            length = calculateAnimationLength(boneAnimations);
 
-			return list;
-		}
+        return new Animation(name, length, loopType, boneAnimations, keyframes);
+    }
 
-		throw new JsonParseException("Invalid object type provided to getTripletObj, got: " + element);
-	}
+    private BoneAnimation[] bakeBoneAnimations(JsonObject bonesObj) throws MolangException {
+        BoneAnimation[] animations = new BoneAnimation[bonesObj.size()];
+        int index = 0;
 
-	private KeyframeStack<Keyframe<IValue>> buildKeyframeStack(List<Pair<String, JsonElement>> entries, boolean isForRotation) throws MolangException {
-		if (entries.isEmpty())
-			return new KeyframeStack<>();
+        for (Map.Entry<String, JsonElement> entry : bonesObj.entrySet()) {
+            JsonObject entryObj = entry.getValue().getAsJsonObject();
+            KeyframeStack<Keyframe<IValue>> scaleFrames = buildKeyframeStack(
+                    getTripletObj(entryObj.get("scale")), false);
+            KeyframeStack<Keyframe<IValue>> positionFrames = buildKeyframeStack(
+                    getTripletObj(entryObj.get("position")), false);
+            KeyframeStack<Keyframe<IValue>> rotationFrames = buildKeyframeStack(
+                    getTripletObj(entryObj.get("rotation")), true);
 
-		List<Keyframe<IValue>> xFrames = new ObjectArrayList<>();
-		List<Keyframe<IValue>> yFrames = new ObjectArrayList<>();
-		List<Keyframe<IValue>> zFrames = new ObjectArrayList<>();
+            animations[index] = new BoneAnimation(entry.getKey(), rotationFrames, positionFrames, scaleFrames);
+            index++;
+        }
 
-		IValue xPrev = null;
-		IValue yPrev = null;
-		IValue zPrev = null;
-		Pair<String, JsonElement> prevEntry = null;
+        return animations;
+    }
 
-		for (Pair<String, JsonElement> entry : entries) {
-			String key = entry.getFirst();
-			JsonElement element = entry.getSecond();
+    private KeyframeStack<Keyframe<IValue>> buildKeyframeStack(List<Pair<String, JsonElement>> entries, boolean isForRotation) throws MolangException {
+        if (entries.isEmpty())
+            return new KeyframeStack<>();
 
-			if (key.equals("easing") || key.equals("easingArgs") || key.equals("lerp_mode"))
-				continue;
+        List<Keyframe<IValue>> xFrames = new ObjectArrayList<>();
+        List<Keyframe<IValue>> yFrames = new ObjectArrayList<>();
+        List<Keyframe<IValue>> zFrames = new ObjectArrayList<>();
 
-			double prevTime = prevEntry != null ? Double.parseDouble(prevEntry.getFirst()) : 0;
-			double curTime = NumberUtils.isCreatable(key) ? Double.parseDouble(entry.getFirst()) : 0;
-			double timeDelta = curTime - prevTime;
+        IValue xPrev = null;
+        IValue yPrev = null;
+        IValue zPrev = null;
+        Pair<String, JsonElement> prevEntry = null;
 
-			JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
-			MolangValue rawXValue = MolangParser.parseJson(keyFrameVector.get(0));
-			MolangValue rawYValue = MolangParser.parseJson(keyFrameVector.get(1));
-			MolangValue rawZValue = MolangParser.parseJson(keyFrameVector.get(2));
-			IValue xValue = isForRotation && rawXValue.isConstant() ? new Constant(Math.toRadians(-rawXValue.get())) : rawXValue;
-			IValue yValue = isForRotation && rawYValue.isConstant() ? new Constant(Math.toRadians(-rawYValue.get())) : rawYValue;
-			IValue zValue = isForRotation && rawZValue.isConstant() ? new Constant(Math.toRadians(rawZValue.get())) : rawZValue;
+        for (Pair<String, JsonElement> entry : entries) {
+            String key = entry.getFirst();
+            JsonElement element = entry.getSecond();
 
-			JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
-			EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
-			List<IValue> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
-					JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> new Constant(ele.getAsDouble())) :
-					new ObjectArrayList<>();
+            if (key.equals("easing") || key.equals("easingArgs") || key.equals("lerp_mode"))
+                continue;
 
-			xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
-			yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
-			zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
+            double prevTime = prevEntry != null ? Double.parseDouble(prevEntry.getFirst()) : 0;
+            double curTime = NumberUtils.isCreatable(key) ? Double.parseDouble(entry.getFirst()) : 0;
+            double timeDelta = curTime - prevTime;
 
-			xPrev = xValue;
-			yPrev = yValue;
-			zPrev = zValue;
-			prevEntry = entry;
-		}
+            JsonArray keyFrameVector = element instanceof JsonArray array ? array : GsonHelper.getAsJsonArray(element.getAsJsonObject(), "vector");
+            MolangValue rawXValue = MolangParser.parseJson(keyFrameVector.get(0));
+            MolangValue rawYValue = MolangParser.parseJson(keyFrameVector.get(1));
+            MolangValue rawZValue = MolangParser.parseJson(keyFrameVector.get(2));
+            IValue xValue = isForRotation && rawXValue.isConstant() ? new Constant(Math.toRadians(-rawXValue.get())) : rawXValue;
+            IValue yValue = isForRotation && rawYValue.isConstant() ? new Constant(Math.toRadians(-rawYValue.get())) : rawYValue;
+            IValue zValue = isForRotation && rawZValue.isConstant() ? new Constant(Math.toRadians(rawZValue.get())) : rawZValue;
 
-		return new KeyframeStack<>(xFrames, yFrames, zFrames);
-	}
+            JsonObject entryObj = element instanceof JsonObject obj ? obj : null;
+            EasingType easingType = entryObj != null && entryObj.has("easing") ? EasingType.fromJson(entryObj.get("easing")) : EasingType.LINEAR;
+            List<IValue> easingArgs = entryObj != null && entryObj.has("easingArgs") ?
+                    JsonUtil.jsonArrayToList(GsonHelper.getAsJsonArray(entryObj, "easingArgs"), ele -> new Constant(ele.getAsDouble())) :
+                    new ObjectArrayList<>();
 
-	private static double calculateAnimationLength(BoneAnimation[] boneAnimations) {
-		double length = 0;
+            xFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? xValue : xPrev, xValue, easingType, easingArgs));
+            yFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? yValue : yPrev, yValue, easingType, easingArgs));
+            zFrames.add(new Keyframe<>(timeDelta * 20, prevEntry == null ? zValue : zPrev, zValue, easingType, easingArgs));
 
-		for (BoneAnimation animation : boneAnimations) {
-			length = Math.max(length, animation.rotationKeyFrames().getLastKeyframeTime());
-			length = Math.max(length, animation.positionKeyFrames().getLastKeyframeTime());
-			length = Math.max(length, animation.scaleKeyFrames().getLastKeyframeTime());
-		}
+            xPrev = xValue;
+            yPrev = yValue;
+            zPrev = zValue;
+            prevEntry = entry;
+        }
 
-		return length == 0 ? Double.MAX_VALUE : length;
-	}
+        return new KeyframeStack<>(xFrames, yFrames, zFrames);
+    }
 }

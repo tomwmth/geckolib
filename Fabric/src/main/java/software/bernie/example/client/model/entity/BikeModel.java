@@ -10,16 +10,17 @@ import software.bernie.geckolib.model.GeoModel;
 
 /**
  * Example {@link GeoModel} for the {@link BikeEntity}
+ *
  * @see BikeRenderer
  */
 public class BikeModel extends DefaultedEntityGeoModel<BikeEntity> {
-	public BikeModel() {
-		super(new ResourceLocation(GeckoLib.MOD_ID, "bike"));
-	}
+    public BikeModel() {
+        super(new ResourceLocation(GeckoLib.MOD_ID, "bike"));
+    }
 
-	// We want this entity to have a translucent render
-	@Override
-	public RenderType getRenderType(BikeEntity animatable, ResourceLocation texture) {
-		return RenderType.entityTranslucent(getTextureResource(animatable));
-	}
+    // We want this entity to have a translucent render
+    @Override
+    public RenderType getRenderType(BikeEntity animatable, ResourceLocation texture) {
+        return RenderType.entityTranslucent(getTextureResource(animatable));
+    }
 }

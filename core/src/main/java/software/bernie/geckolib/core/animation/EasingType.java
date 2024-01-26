@@ -57,8 +57,6 @@ public interface EasingType {
     EasingType EASE_IN_OUT_BOUNCE = register("easeinoutbounce", value -> easeInOut(bounce(value)));
     EasingType CATMULLROM = register("catmullrom", value -> easeInOut(EasingType::catmullRom));
 
-    Double2DoubleFunction buildTransformer(Double value);
-
     static double lerpWithOverride(AnimationPoint animationPoint, EasingType override) {
         EasingType easingType = override;
 
@@ -68,27 +66,12 @@ public interface EasingType {
         return easingType.apply(animationPoint);
     }
 
-    default double apply(AnimationPoint animationPoint) {
-        Double easingVariable = null;
-
-        if (animationPoint.keyFrame() != null && animationPoint.keyFrame().easingArgs().size() > 0)
-            easingVariable = animationPoint.keyFrame().easingArgs().get(0).get();
-
-        return apply(animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
-    }
-
-    default double apply(AnimationPoint animationPoint, Double easingValue, double lerpValue) {
-        if (animationPoint.currentTick() >= animationPoint.transitionLength())
-            return (float)animationPoint.animationEndValue();
-
-        return Interpolations.lerp(animationPoint.animationStartValue(), animationPoint.animationEndValue(), buildTransformer(easingValue).apply(lerpValue));
-    }
-
     /**
      * Register an {@code EasingType} with Geckolib for handling animation transitions and value curves.<br>
      * <b><u>MUST be called during mod construct</u></b><br>
      * It is recommended you don't call this directly, and instead call it via {@code GeckoLibUtil#addCustomEasingType}
-     * @param name The name of the easing type
+     *
+     * @param name       The name of the easing type
      * @param easingType The {@code EasingType} to associate with the given name
      * @return The {@code EasingType} you registered
      */
@@ -100,6 +83,7 @@ public interface EasingType {
 
     /**
      * Retrieve an {@code EasingType} instance based on a {@link JsonElement}. Returns one of the default {@code EasingTypes} if the name matches, or any other registered {@code EasingType} with a matching name.
+     *
      * @param json The {@code easing} {@link JsonElement} to attempt to parse.
      * @return A usable {@code EasingType} instance
      */
@@ -115,6 +99,7 @@ public interface EasingType {
 
     /**
      * Get an existing {@code EasingType} from a given string, matching the string to its name.
+     *
      * @param name The name of the easing function
      * @return The relevant {@code EasingType}, or {@link EasingType#LINEAR} if none match
      */
@@ -122,15 +107,13 @@ public interface EasingType {
         return EASING_TYPES.getOrDefault(name, EasingType.LINEAR);
     }
 
-    // ---> Easing Transition Type Functions <--- //
-
     /**
      * Returns an easing function running linearly. Functionally equivalent to no easing
      */
     static Double2DoubleFunction linear(Double2DoubleFunction function) {
         return function;
     }
-    
+
     /**
      * Performs a Catmull-Rom interpolation, used to get smooth interpolated motion between keyframes.<br>
      * <a href="https://pub.dev/documentation/latlong2/latest/spline/CatmullRom-class.html">CatmullRom#position</a>
@@ -147,6 +130,8 @@ public interface EasingType {
     static Double2DoubleFunction easeIn(Double2DoubleFunction function) {
         return function;
     }
+
+    // ---> Easing Transition Type Functions <--- //
 
     /**
      * Returns an easing function running backwards in time
@@ -167,8 +152,6 @@ public interface EasingType {
         };
     }
 
-    // ---> Stepping Functions <--- //
-
     /**
      * Returns a stepping function that returns 1 for any input value greater than 0, or otherwise returning 0
      */
@@ -183,8 +166,6 @@ public interface EasingType {
         return n -> n >= 0 ? 1 : 0;
     }
 
-    // ---> Mathematical Functions <--- //
-
     /**
      * A linear function, equivalent to a null-operation.<br>
      * {@code f(n) = n}
@@ -192,6 +173,8 @@ public interface EasingType {
     static double linear(double n) {
         return n;
     }
+
+    // ---> Stepping Functions <--- //
 
     /**
      * A quadratic function, equivalent to the square (<i>n</i>^2) of elapsed time.<br>
@@ -210,6 +193,8 @@ public interface EasingType {
     static double cubic(double n) {
         return n * n * n;
     }
+
+    // ---> Mathematical Functions <--- //
 
     /**
      * A sinusoidal function, equivalent to a sine curve output.<br>
@@ -237,8 +222,6 @@ public interface EasingType {
     static double exp(double n) {
         return Math.pow(2, 10 * (n - 1));
     }
-
-    // ---> Easing Curve Functions <--- //
 
     /**
      * An elastic function, equivalent to an oscillating curve.<br>
@@ -280,31 +263,33 @@ public interface EasingType {
         return t -> t * t * ((n2 + 1) * t - n2);
     }
 
+    // ---> Easing Curve Functions <--- //
+
     /**
      * An exponential function, equivalent to an exponential curve to the {@code n} root.<br>
      * <code>f(t) = t^n</code>
+     *
      * @param n The exponent
      */
     static Double2DoubleFunction pow(double n) {
         return t -> Math.pow(t, n);
     }
 
-    // The MIT license notice below applies to the function step
     /**
      * The MIT License (MIT)
-     *<br><br>
+     * <br><br>
      * Copyright (c) 2015 Boris Chumichev
-     *<br><br>
+     * <br><br>
      * Permission is hereby granted, free of charge, to any person obtaining a copy
      * of this software and associated documentation files (the "Software"), to deal
      * in the Software without restriction, including without limitation the rights
      * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
      * copies of the Software, and to permit persons to whom the Software is
      * furnished to do so, subject to the following conditions:
-     *<br><br>
+     * <br><br>
      * The above copyright notice and this permission notice shall be included in
      * all copies or substantial portions of the Software.
-     *<br><br>
+     * <br><br>
      * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
      * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
      * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -322,7 +307,7 @@ public interface EasingType {
         if (n2 < 2)
             throw new IllegalArgumentException("Steps must be >= 2, got: " + n2);
 
-        final int steps = (int)n2;
+        final int steps = (int) n2;
 
         return t -> {
             double result = 0;
@@ -330,7 +315,7 @@ public interface EasingType {
             if (t < 0)
                 return result;
 
-            double stepLength = (1 / (double)steps);
+            double stepLength = (1 / (double) steps);
 
             if (t > (result = (steps - 1) * stepLength))
                 return result;
@@ -344,13 +329,32 @@ public interface EasingType {
 
                 if (t >= testIndex * stepLength) {
                     leftBorderIndex = testIndex;
-                }
-                else {
+                } else {
                     rightBorderIndex = testIndex;
                 }
             }
 
             return leftBorderIndex * stepLength;
         };
+    }
+
+    Double2DoubleFunction buildTransformer(Double value);
+
+    default double apply(AnimationPoint animationPoint) {
+        Double easingVariable = null;
+
+        if (animationPoint.keyFrame() != null && animationPoint.keyFrame().easingArgs().size() > 0)
+            easingVariable = animationPoint.keyFrame().easingArgs().get(0).get();
+
+        return apply(animationPoint, easingVariable, animationPoint.currentTick() / animationPoint.transitionLength());
+    }
+
+    // The MIT license notice below applies to the function step
+
+    default double apply(AnimationPoint animationPoint, Double easingValue, double lerpValue) {
+        if (animationPoint.currentTick() >= animationPoint.transitionLength())
+            return (float) animationPoint.animationEndValue();
+
+        return Interpolations.lerp(animationPoint.animationStartValue(), animationPoint.animationEndValue(), buildTransformer(easingValue).apply(lerpValue));
     }
 }

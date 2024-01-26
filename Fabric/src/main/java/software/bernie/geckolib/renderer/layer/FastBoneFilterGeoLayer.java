@@ -19,35 +19,38 @@ import java.util.function.Supplier;
  * so that the bone hierarchy doesn't need to be traversed.
  */
 public class FastBoneFilterGeoLayer<T extends GeoAnimatable> extends BoneFilterGeoLayer<T> {
-	protected final Supplier<List<String>> boneSupplier;
+    protected final Supplier<List<String>> boneSupplier;
 
-	public FastBoneFilterGeoLayer(GeoRenderer<T> renderer) {
-		this(renderer, List::of);
-	}
+    public FastBoneFilterGeoLayer(GeoRenderer<T> renderer) {
+        this(renderer, List::of);
+    }
 
-	public FastBoneFilterGeoLayer(GeoRenderer<T> renderer, Supplier<List<String>> boneSupplier) {
-		this(renderer, boneSupplier, (bone, animatable, partialTick) -> {});
-	}
+    public FastBoneFilterGeoLayer(GeoRenderer<T> renderer, Supplier<List<String>> boneSupplier) {
+        this(renderer, boneSupplier, (bone, animatable, partialTick) -> {
+        });
+    }
 
-	public FastBoneFilterGeoLayer(GeoRenderer<T> renderer, Supplier<List<String>> boneSupplier, TriConsumer<GeoBone, T, Float> checkAndApply) {
-		super(renderer, checkAndApply);
+    public FastBoneFilterGeoLayer(GeoRenderer<T> renderer, Supplier<List<String>> boneSupplier, TriConsumer<GeoBone, T, Float> checkAndApply) {
+        super(renderer, checkAndApply);
 
-		this.boneSupplier = boneSupplier;
-	}
+        this.boneSupplier = boneSupplier;
+    }
 
-	/**
-	 * Return a list of bone names to grab to then be filtered.<br>
-	 * This is even more efficient if you use a cached list.
-	 */
-	protected List<String> getAffectedBones() {
-		return boneSupplier.get();
-	};
+    /**
+     * Return a list of bone names to grab to then be filtered.<br>
+     * This is even more efficient if you use a cached list.
+     */
+    protected List<String> getAffectedBones() {
+        return boneSupplier.get();
+    }
 
-	@Override
-	public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource,
-						  VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-		for (String boneName : getAffectedBones()) {
-			this.renderer.getGeoModel().getBone(boneName).ifPresent(bone -> checkAndApply(bone, animatable, partialTick));
-		}
-	}
+    ;
+
+    @Override
+    public void preRender(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource,
+                          VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+        for (String boneName : getAffectedBones()) {
+            this.renderer.getGeoModel().getBone(boneName).ifPresent(bone -> checkAndApply(bone, animatable, partialTick));
+        }
+    }
 }

@@ -12,33 +12,33 @@ import software.bernie.geckolib.util.ClientUtils;
  * Packet for syncing user-definable animation data for {@link net.minecraft.world.entity.Entity Entities}
  */
 public class EntityAnimDataSyncPacket<D> {
-	private final int entityId;
-	private final SerializableDataTicket<D> dataTicket;
-	private final D data;
+    private final int entityId;
+    private final SerializableDataTicket<D> dataTicket;
+    private final D data;
 
-	public EntityAnimDataSyncPacket(int entityId, SerializableDataTicket<D> dataTicket, D data) {
-		this.entityId = entityId;
-		this.dataTicket = dataTicket;
-		this.data = data;
-	}
+    public EntityAnimDataSyncPacket(int entityId, SerializableDataTicket<D> dataTicket, D data) {
+        this.entityId = entityId;
+        this.dataTicket = dataTicket;
+        this.data = data;
+    }
 
-	public void encode(FriendlyByteBuf buffer) {
-		buffer.writeVarInt(this.entityId);
-		buffer.writeUtf(this.dataTicket.id());
-		this.dataTicket.encode(this.data, buffer);
-	}
+    public static <D> EntityAnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
+        int entityId = buffer.readVarInt();
+        SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readUtf());
 
-	public static <D> EntityAnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
-		int entityId = buffer.readVarInt();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>)DataTickets.byName(buffer.readUtf());
+        return new EntityAnimDataSyncPacket<>(entityId, dataTicket, dataTicket.decode(buffer));
+    }
 
-		return new EntityAnimDataSyncPacket<>(entityId, dataTicket, dataTicket.decode(buffer));
-	}
+    public void encode(FriendlyByteBuf buffer) {
+        buffer.writeVarInt(this.entityId);
+        buffer.writeUtf(this.dataTicket.id());
+        this.dataTicket.encode(this.data, buffer);
+    }
 
-	public void receivePacket(CustomPayloadEvent.Context context) {
-		Entity entity = ClientUtils.getLevel().getEntity(this.entityId);
+    public void receivePacket(CustomPayloadEvent.Context context) {
+        Entity entity = ClientUtils.getLevel().getEntity(this.entityId);
 
-		if (entity instanceof GeoEntity geoEntity)
-			geoEntity.setAnimData(this.dataTicket, this.data);
-	}
+        if (entity instanceof GeoEntity geoEntity)
+            geoEntity.setAnimData(this.dataTicket, this.data);
+    }
 }

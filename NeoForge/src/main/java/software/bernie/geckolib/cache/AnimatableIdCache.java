@@ -11,41 +11,42 @@ import software.bernie.geckolib.core.animatable.instance.SingletonAnimatableInst
  * {@link SingletonAnimatableInstanceCache singleton} will likely use this.
  */
 public final class AnimatableIdCache extends SavedData {
-	private static final Factory<AnimatableIdCache> FACTORY = new Factory<>(AnimatableIdCache::new, AnimatableIdCache::new, null);
-	private static final String DATA_KEY = "geckolib_id_cache";
-	private long lastId;
+    private static final Factory<AnimatableIdCache> FACTORY = new Factory<>(AnimatableIdCache::new, AnimatableIdCache::new, null);
+    private static final String DATA_KEY = "geckolib_id_cache";
+    private long lastId;
 
-	private AnimatableIdCache() {
-		this(new CompoundTag());
-	}
+    private AnimatableIdCache() {
+        this(new CompoundTag());
+    }
 
-	private AnimatableIdCache(CompoundTag tag) {
-		this.lastId = tag.getLong("last_id");
-	}
+    private AnimatableIdCache(CompoundTag tag) {
+        this.lastId = tag.getLong("last_id");
+    }
 
-	/**
-	 * Get the next free id from the id cache
-	 * @param level An arbitrary ServerLevel. It doesn't matter which one
-	 * @return The next free ID, which is immediately reserved for use after calling this method
-	 */
-	public static long getFreeId(ServerLevel level) {
-		return getCache(level).getNextId();
-	}
+    /**
+     * Get the next free id from the id cache
+     *
+     * @param level An arbitrary ServerLevel. It doesn't matter which one
+     * @return The next free ID, which is immediately reserved for use after calling this method
+     */
+    public static long getFreeId(ServerLevel level) {
+        return getCache(level).getNextId();
+    }
 
-	private long getNextId() {
-		setDirty();
+    private static AnimatableIdCache getCache(ServerLevel level) {
+        return level.getServer().overworld().getDataStorage().computeIfAbsent(FACTORY, DATA_KEY);
+    }
 
-		return ++this.lastId;
-	}
+    private long getNextId() {
+        setDirty();
 
-	@Override
-	public CompoundTag save(CompoundTag tag) {
-		tag.putLong("last_id", this.lastId);
+        return ++this.lastId;
+    }
 
-		return tag;
-	}
+    @Override
+    public CompoundTag save(CompoundTag tag) {
+        tag.putLong("last_id", this.lastId);
 
-	private static AnimatableIdCache getCache(ServerLevel level) {
-		return level.getServer().overworld().getDataStorage().computeIfAbsent(FACTORY, DATA_KEY);
-	}
+        return tag;
+    }
 }

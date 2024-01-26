@@ -18,32 +18,32 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * Example {@link GeoAnimatable} implementation of an entity
  */
 public class ParasiteEntity extends Monster implements GeoEntity {
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-	public ParasiteEntity(EntityType<? extends Monster> type, Level level) {
-		super(type, level);
-	}
+    public ParasiteEntity(EntityType<? extends Monster> type, Level level) {
+        super(type, level);
+    }
 
-	protected void registerGoals() {
-		this.goalSelector.addGoal(1, new FloatGoal(this));
-		this.goalSelector.addGoal(3, new LeapAtTargetGoal(this, 0.4F));
-		this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.1, false));
-		this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8D));
-		this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
-		this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
-		this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
-		this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
-	}
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new FloatGoal(this));
+        this.goalSelector.addGoal(3, new LeapAtTargetGoal(this, 0.4F));
+        this.goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.1, false));
+        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8D));
+        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 8.0F));
+        this.goalSelector.addGoal(6, new RandomLookAroundGoal(this));
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
+    }
 
-	// Add our animations
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(DefaultAnimations.genericWalkIdleController(this));
-		controllers.add(DefaultAnimations.genericAttackAnimation(this, DefaultAnimations.ATTACK_STRIKE));
-	}
+    // Add our animations
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(DefaultAnimations.genericWalkIdleController(this));
+        controllers.add(DefaultAnimations.genericAttackAnimation(this, DefaultAnimations.ATTACK_STRIKE));
+    }
 
-	@Override
-	public AnimatableInstanceCache getAnimatableInstanceCache() {
-		return this.cache;
-	}
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
 }

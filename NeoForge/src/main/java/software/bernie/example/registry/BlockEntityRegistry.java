@@ -9,13 +9,13 @@ import software.bernie.example.block.entity.GeckoHabitatBlockEntity;
 import software.bernie.geckolib.GeckoLib;
 
 public final class BlockEntityRegistry {
-	public static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister
-			.create(Registries.BLOCK_ENTITY_TYPE, GeckoLib.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> TILES = DeferredRegister
+            .create(Registries.BLOCK_ENTITY_TYPE, GeckoLib.MOD_ID);
 
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GeckoHabitatBlockEntity>> GECKO_HABITAT = TILES
-			.register("habitat", () -> BlockEntityType.Builder
-					.of(GeckoHabitatBlockEntity::new, BlockRegistry.GECKO_HABITAT.get()).build(null));
-	public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FertilizerBlockEntity>> FERTILIZER_BLOCK = TILES
-			.register("fertilizer", () -> BlockEntityType.Builder
-					.of(FertilizerBlockEntity::new, BlockRegistry.FERTILIZER.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<GeckoHabitatBlockEntity>> GECKO_HABITAT = TILES
+            .register("habitat", () -> BlockEntityType.Builder
+                    .of(GeckoHabitatBlockEntity::new, BlockRegistry.GECKO_HABITAT.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FertilizerBlockEntity>> FERTILIZER_BLOCK = TILES
+            .register("fertilizer", () -> BlockEntityType.Builder
+                    .of(FertilizerBlockEntity::new, BlockRegistry.FERTILIZER.get()).build(null));
 }

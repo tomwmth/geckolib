@@ -40,24 +40,6 @@ public class EntityAnimTriggerPacket extends AbstractPacket {
         this.ANIM_NAME = animName;
     }
 
-    @Override
-    public FriendlyByteBuf encode() {
-        FriendlyByteBuf buf = PacketByteBufs.create();
-
-        buf.writeVarInt(this.ENTITY_ID);
-        buf.writeBoolean(this.IS_REPLACED_ENTITY);
-
-        buf.writeUtf(this.CONTROLLER_NAME);
-        buf.writeUtf(this.ANIM_NAME);
-
-        return buf;
-    }
-
-    @Override
-    public ResourceLocation getPacketID() {
-        return GeckoLibNetwork.ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
-    }
-
     public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
         final int ENTITY_ID = buf.readVarInt();
         final boolean IS_REPLACED_ENTITY = buf.readBoolean();
@@ -83,5 +65,23 @@ public class EntityAnimTriggerPacket extends AbstractPacket {
         GeoAnimatable animatable = RenderUtils.getReplacedAnimatable(entity.getType());
         if (animatable instanceof GeoReplacedEntity replacedEntity)
             replacedEntity.triggerAnim(entity, controllerName.isEmpty() ? null : controllerName, animName);
+    }
+
+    @Override
+    public FriendlyByteBuf encode() {
+        FriendlyByteBuf buf = PacketByteBufs.create();
+
+        buf.writeVarInt(this.ENTITY_ID);
+        buf.writeBoolean(this.IS_REPLACED_ENTITY);
+
+        buf.writeUtf(this.CONTROLLER_NAME);
+        buf.writeUtf(this.ANIM_NAME);
+
+        return buf;
+    }
+
+    @Override
+    public ResourceLocation getPacketID() {
+        return GeckoLibNetwork.ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 }

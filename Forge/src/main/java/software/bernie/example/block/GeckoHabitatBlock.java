@@ -26,63 +26,64 @@ import javax.annotation.Nullable;
 /**
  * Example animated block using GeckoLib animations.<br>
  * There's nothing to see here since the {@link Block} class itself has little to do with animations
+ *
  * @see GeckoHabitatModel
  * @see GeckoHabitatBlockEntity
  * @see GeckoHabitatBlockRenderer
  */
 public class GeckoHabitatBlock extends BaseEntityBlock implements EntityBlock {
-	public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
 
-	public GeckoHabitatBlock() {
-		super(Properties.of().noOcclusion());
-	}
+    public GeckoHabitatBlock() {
+        super(Properties.of().noOcclusion());
+    }
 
-	@Override
-	protected MapCodec<? extends BaseEntityBlock> codec() {
-		return null;
-	}
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return null;
+    }
 
-	@Override
-	public RenderShape getRenderShape(BlockState state) {
-		return RenderShape.ENTITYBLOCK_ANIMATED;
-	}
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.ENTITYBLOCK_ANIMATED;
+    }
 
-	@Override
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
-	}
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
 
-	@Nullable
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return this.defaultBlockState().setValue(FACING,
-				context.getHorizontalDirection().getClockWise().getClockWise());
-	}
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING,
+                context.getHorizontalDirection().getClockWise().getClockWise());
+    }
 
-	@Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
-		return BlockEntityRegistry.GECKO_HABITAT.get().create(blockPos, blockState);
-	}
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return BlockEntityRegistry.GECKO_HABITAT.get().create(blockPos, blockState);
+    }
 
-	@Override
-	public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
-		return switch (state.getValue(FACING)) {
-			case NORTH -> Block.box(0, 0, 0, 32, 16, 16);
-			case SOUTH -> Block.box(-16, 0, 0, 16, 16, 16);
-			case WEST -> Block.box(0, 0, -16, 16, 16, 16);
-			default -> Block.box(0, 0, 0, 16, 16, 32);
-		};
-	}
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(FACING)) {
+            case NORTH -> Block.box(0, 0, 0, 32, 16, 16);
+            case SOUTH -> Block.box(-16, 0, 0, 16, 16, 16);
+            case WEST -> Block.box(0, 0, -16, 16, 16, 16);
+            default -> Block.box(0, 0, 0, 16, 16, 32);
+        };
+    }
 
-	@Override
-	public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
-		for (BlockPos testPos : BlockPos.betweenClosed(pos,
-				pos.relative(state.getValue(FACING).getClockWise(), 2))) {
-			if (!testPos.equals(pos) && !world.getBlockState(testPos).isAir())
-				return false;
-		}
+    @Override
+    public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
+        for (BlockPos testPos : BlockPos.betweenClosed(pos,
+                pos.relative(state.getValue(FACING).getClockWise(), 2))) {
+            if (!testPos.equals(pos) && !world.getBlockState(testPos).isAir())
+                return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

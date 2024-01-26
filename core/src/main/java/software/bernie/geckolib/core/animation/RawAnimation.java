@@ -24,10 +24,12 @@ public final class RawAnimation {
     private final List<Stage> animationList = new ObjectArrayList<>();
 
     // Private constructor to force usage of factory for logical operations
-    private RawAnimation() {}
+    private RawAnimation() {
+    }
 
     /**
      * Start a new RawAnimation instance. This is the start point for creating an animation chain.
+     *
      * @return A new RawAnimation instance
      */
     public static RawAnimation begin() {
@@ -35,8 +37,24 @@ public final class RawAnimation {
     }
 
     /**
+     * Create a new RawAnimation instance based on an existing RawAnimation instance.
+     * The new instance will be a shallow copy of the other instance, and can then be appended to or otherwise modified
+     *
+     * @param other The existing RawAnimation instance to copy
+     * @return A new instance of RawAnimation
+     */
+    public static RawAnimation copyOf(RawAnimation other) {
+        RawAnimation newInstance = RawAnimation.begin();
+
+        newInstance.animationList.addAll(other.animationList);
+
+        return newInstance;
+    }
+
+    /**
      * Append an animation to the animation chain, playing the named animation and stopping
      * or progressing to the next chained animation depending on the loop type set in the animation json
+     *
      * @param animationName The name of the animation to play once
      */
     public RawAnimation thenPlay(String animationName) {
@@ -45,6 +63,7 @@ public final class RawAnimation {
 
     /**
      * Append an animation to the animation chain, playing the named animation and repeating it continuously until the animation is stopped by external sources.
+     *
      * @param animationName The name of the animation to play on a loop
      */
     public RawAnimation thenLoop(String animationName) {
@@ -54,6 +73,7 @@ public final class RawAnimation {
     /**
      * Appends a 'wait' animation to the animation chain.<br>
      * This causes the animatable to do nothing for a set period of time before performing the next animation.
+     *
      * @param ticks The number of ticks to 'wait' for
      */
     public RawAnimation thenWait(int ticks) {
@@ -65,6 +85,7 @@ public final class RawAnimation {
     /**
      * Appends an animation to the animation chain, then has the animatable hold the pose at the end of the
      * animation until it is stopped by external sources.
+     *
      * @param animation The name of the animation to play and hold
      */
     public RawAnimation thenPlayAndHold(String animation) {
@@ -74,8 +95,9 @@ public final class RawAnimation {
     /**
      * Append an animation to the animation chain, playing the named animation <code>playCount</code> times,
      * then stopping or progressing to the next chained animation depending on the loop type set in the animation json
+     *
      * @param animationName The name of the animation to play X times
-     * @param playCount The number of times to repeat the animation before proceeding
+     * @param playCount     The number of times to repeat the animation before proceeding
      */
     public RawAnimation thenPlayXTimes(String animationName, int playCount) {
         for (int i = 0; i < playCount; i++) {
@@ -87,8 +109,9 @@ public final class RawAnimation {
 
     /**
      * Append an animation to the animation chain, playing the named animation and proceeding based on the <code>loopType</code> parameter provided.
+     *
      * @param animationName The name of the animation to play. <u>MUST</u> match the name of the animation in the <code>.animation.json</code> file.
-     * @param loopType The loop type handler for the animation, overriding the default value set in the animation json
+     * @param loopType      The loop type handler for the animation, overriding the default value set in the animation json
      */
     public RawAnimation then(String animationName, Animation.LoopType loopType) {
         this.animationList.add(new Stage(animationName, loopType));
@@ -98,20 +121,6 @@ public final class RawAnimation {
 
     public List<Stage> getAnimationStages() {
         return this.animationList;
-    }
-
-    /**
-     * Create a new RawAnimation instance based on an existing RawAnimation instance.
-     * The new instance will be a shallow copy of the other instance, and can then be appended to or otherwise modified
-     * @param other The existing RawAnimation instance to copy
-     * @return A new instance of RawAnimation
-     */
-    public static RawAnimation copyOf(RawAnimation other) {
-        RawAnimation newInstance = RawAnimation.begin();
-
-        newInstance.animationList.addAll(other.animationList);
-
-        return newInstance;
     }
 
     @Override

@@ -7,11 +7,12 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
  * Example {@link software.bernie.geckolib.renderer.GeoRenderer} implementation of an entity
+ *
  * @see RaceCarModel
  * @see RaceCarEntity
  */
 public class RaceCarRenderer extends GeoEntityRenderer<RaceCarEntity> {
-	public RaceCarRenderer(EntityRendererProvider.Context context) {
-		super(context, new RaceCarModel());
-	}
+    public RaceCarRenderer(EntityRendererProvider.Context context) {
+        super(context, new RaceCarModel());
+    }
 }

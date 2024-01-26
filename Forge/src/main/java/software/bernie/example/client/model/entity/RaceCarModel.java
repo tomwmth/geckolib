@@ -10,16 +10,17 @@ import software.bernie.geckolib.model.GeoModel;
 
 /**
  * Example {@link GeoModel} for the {@link RaceCarEntity}
+ *
  * @see RaceCarRenderer
  */
 public class RaceCarModel extends DefaultedEntityGeoModel<RaceCarEntity> {
-	public RaceCarModel() {
-		super(new ResourceLocation(GeckoLib.MOD_ID, "race_car"));
-	}
+    public RaceCarModel() {
+        super(new ResourceLocation(GeckoLib.MOD_ID, "race_car"));
+    }
 
-	// We want our model to render using the translucent render type
-	@Override
-	public RenderType getRenderType(RaceCarEntity animatable, ResourceLocation texture) {
-		return RenderType.entityTranslucent(getTextureResource(animatable));
-	}
+    // We want our model to render using the translucent render type
+    @Override
+    public RenderType getRenderType(RaceCarEntity animatable, ResourceLocation texture) {
+        return RenderType.entityTranslucent(getTextureResource(animatable));
+    }
 }

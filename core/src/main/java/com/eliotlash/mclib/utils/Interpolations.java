@@ -130,7 +130,7 @@ public class Interpolations {
     public static double bezierX(double x1, double x2, double t, double epsilon) {
         double x = t;
         double init = Interpolations.bezier(0.0, x1, x2, 1.0, t);
-        double factor = Math.copySign((double)0.1f, t - init);
+        double factor = Math.copySign((double) 0.1f, t - init);
         while (Math.abs(t - init) > epsilon) {
             double oldFactor = factor;
             init = Interpolations.bezier(0.0, x1, x2, 1.0, x += factor);
@@ -141,7 +141,7 @@ public class Interpolations {
     }
 
     public static double bezierX(double x1, double x2, float t) {
-        return Interpolations.bezierX(x1, x2, (double)t, (double)5.0E-4f);
+        return Interpolations.bezierX(x1, x2, (double) t, (double) 5.0E-4f);
     }
 
     public static double bezier(double x1, double x2, double x3, double x4, double t) {

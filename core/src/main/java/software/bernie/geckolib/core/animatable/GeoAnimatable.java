@@ -35,6 +35,7 @@ public interface GeoAnimatable {
     /**
      * Each instance of a {@code GeoAnimatable} must return an instance of an {@link AnimatableInstanceCache}, which handles instance-specific animation info.
      * Generally speaking, you should create your cache using {@code GeckoLibUtil#createCache} and store it in your animatable instance, returning that cached instance when called.
+     *
      * @return A cached instance of an {@code AnimatableInstanceCache}
      */
     AnimatableInstanceCache getAnimatableInstanceCache();
@@ -59,6 +60,7 @@ public interface GeoAnimatable {
     /**
      * Returns the current age/tick of the animatable instance.<br>
      * By default this is just the animatable's age in ticks, but this method allows for non-ticking custom animatables to provide their own values
+     *
      * @param object An object related to this animatable relevant to tick calculation. Different subclasses will use this differently
      * @return The current tick/age of the animatable, for animation purposes
      */

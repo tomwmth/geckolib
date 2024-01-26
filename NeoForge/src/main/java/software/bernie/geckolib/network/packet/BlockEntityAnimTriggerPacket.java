@@ -13,31 +13,32 @@ import software.bernie.geckolib.util.ClientUtils;
 /**
  * Packet for syncing user-definable animations that can be triggered from the server for {@link net.minecraft.world.level.block.entity.BlockEntity BlockEntities}
  */
-public record BlockEntityAnimTriggerPacket<D>(BlockPos pos, String controllerName, String animName) implements CustomPacketPayload {
-	public static final ResourceLocation ID = new ResourceLocation(GeckoLib.MOD_ID, "block_entity_anim_trigger");
+public record BlockEntityAnimTriggerPacket<D>(BlockPos pos, String controllerName,
+                                              String animName) implements CustomPacketPayload {
+    public static final ResourceLocation ID = new ResourceLocation(GeckoLib.MOD_ID, "block_entity_anim_trigger");
 
-	@Override
-	public ResourceLocation id() {
-		return ID;
-	}
+    public static <D> BlockEntityAnimTriggerPacket<D> decode(FriendlyByteBuf buffer) {
+        return new BlockEntityAnimTriggerPacket<>(buffer.readBlockPos(), buffer.readUtf(), buffer.readUtf());
+    }
 
-	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(this.pos);
-		buffer.writeUtf(this.controllerName);
-		buffer.writeUtf(this.animName);
-	}
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
 
-	public static <D> BlockEntityAnimTriggerPacket<D> decode(FriendlyByteBuf buffer) {
-		return new BlockEntityAnimTriggerPacket<>(buffer.readBlockPos(), buffer.readUtf(), buffer.readUtf());
-	}
+    @Override
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.pos);
+        buffer.writeUtf(this.controllerName);
+        buffer.writeUtf(this.animName);
+    }
 
-	public void receivePacket(PlayPayloadContext context) {
-		context.workHandler().execute(() -> {
-			BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(this.pos);
+    public void receivePacket(PlayPayloadContext context) {
+        context.workHandler().execute(() -> {
+            BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(this.pos);
 
-			if (blockEntity instanceof GeoBlockEntity getBlockEntity)
-				getBlockEntity.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
-		});
-	}
+            if (blockEntity instanceof GeoBlockEntity getBlockEntity)
+                getBlockEntity.triggerAnim(this.controllerName.isEmpty() ? null : this.controllerName, this.animName);
+        });
+    }
 }

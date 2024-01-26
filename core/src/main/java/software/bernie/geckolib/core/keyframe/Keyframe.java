@@ -21,9 +21,10 @@ public final class Keyframe<T extends IValue> {
 
     /**
      * Animation keyframe data
-     * @param length The length (in ticks) the keyframe lasts for
+     *
+     * @param length     The length (in ticks) the keyframe lasts for
      * @param startValue The value to start the keyframe's transformation with
-     * @param endValue The value to end the keyframe's transformation with
+     * @param endValue   The value to end the keyframe's transformation with
      * @param easingType The {@code EasingType} to use for transformations
      * @param easingArgs The arguments to provide to the easing calculation
      */

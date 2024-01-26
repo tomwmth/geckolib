@@ -25,45 +25,46 @@ import java.util.List;
 /**
  * Example animated block using GeckoLib animations.<br>
  * There's nothing to see here since the {@link Block} class itself has little to do with animations
+ *
  * @see software.bernie.example.client.model.block.FertilizerModel
  * @see FertilizerBlockEntity
  * @see FertilizerBlockRenderer
  */
 public class FertilizerBlock extends DirectionalBlock implements EntityBlock {
-	public FertilizerBlock() {
-		super(Properties.of().noOcclusion());
-	}
+    public FertilizerBlock() {
+        super(Properties.of().noOcclusion());
+    }
 
-	@Override
-	protected MapCodec<? extends DirectionalBlock> codec() {
-		return null;
-	}
+    @Override
+    protected MapCodec<? extends DirectionalBlock> codec() {
+        return null;
+    }
 
-	@Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return BlockEntityRegistry.FERTILIZER_BLOCK.create(pos, state);
-	}
+    @Nullable
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return BlockEntityRegistry.FERTILIZER_BLOCK.create(pos, state);
+    }
 
-	@Override
-	public RenderShape getRenderShape(BlockState state) {
-		return RenderShape.ENTITYBLOCK_ANIMATED;
-	}
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.ENTITYBLOCK_ANIMATED;
+    }
 
-	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
-	}
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
 
-	@Nullable
-	@Override
-	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
-	}
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return defaultBlockState().setValue(FACING, context.getNearestLookingDirection().getOpposite());
+    }
 
-	@Override
-	public void appendHoverText(ItemStack stack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
-		tooltip.add(Component.translatable("block." + GeckoLib.MOD_ID + ".fertilizer.tooltip"));
+    @Override
+    public void appendHoverText(ItemStack stack, BlockGetter blockGetter, List<Component> tooltip, TooltipFlag tooltipFlag) {
+        tooltip.add(Component.translatable("block." + GeckoLib.MOD_ID + ".fertilizer.tooltip"));
 
-		super.appendHoverText(stack, blockGetter, tooltip, tooltipFlag);
-	}
+        super.appendHoverText(stack, blockGetter, tooltip, tooltipFlag);
+    }
 }

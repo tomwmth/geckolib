@@ -30,84 +30,85 @@ import java.util.function.Supplier;
 
 /**
  * Example {@link software.bernie.geckolib.core.animatable.GeoAnimatable GeoAnimatable} {@link ArmorItem} implementation
+ *
  * @see GeoItem
  * @see GeckoArmorRenderer
  */
 public final class GeckoArmorItem extends ArmorItem implements GeoItem {
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 
-	public GeckoArmorItem(ArmorMaterial armorMaterial, ArmorItem.Type type, Properties properties) {
-		super(armorMaterial, type, properties);
-	}
+    public GeckoArmorItem(ArmorMaterial armorMaterial, ArmorItem.Type type, Properties properties) {
+        super(armorMaterial, type, properties);
+    }
 
-	// Create our armor model/renderer for Fabric and return it
-	@Override
-	public void createRenderer(Consumer<Object> consumer) {
-		consumer.accept(new RenderProvider() {
-			private GeoArmorRenderer<?> renderer;
+    // Create our armor model/renderer for Fabric and return it
+    @Override
+    public void createRenderer(Consumer<Object> consumer) {
+        consumer.accept(new RenderProvider() {
+            private GeoArmorRenderer<?> renderer;
 
-			@Override
-			public HumanoidModel<LivingEntity> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<LivingEntity> original) {
-				if(this.renderer == null)
-					this.renderer = new GeckoArmorRenderer();
+            @Override
+            public HumanoidModel<LivingEntity> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<LivingEntity> original) {
+                if (this.renderer == null)
+                    this.renderer = new GeckoArmorRenderer();
 
-				// This prepares our GeoArmorRenderer for the current render frame.
-				// These parameters may be null however, so we don't do anything further with them
-				this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
+                // This prepares our GeoArmorRenderer for the current render frame.
+                // These parameters may be null however, so we don't do anything further with them
+                this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
 
-				return this.renderer;
-			}
-		});
-	}
+                return this.renderer;
+            }
+        });
+    }
 
-	@Override
-	public Supplier<Object> getRenderProvider() {
-		return this.renderProvider;
-	}
+    @Override
+    public Supplier<Object> getRenderProvider() {
+        return this.renderProvider;
+    }
 
-	// Let's add our animation controller
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, 20, state -> {
-			// Apply our generic idle animation.
-			// Whether it plays or not is decided down below.
-			state.getController().setAnimation(DefaultAnimations.IDLE);
+    // Let's add our animation controller
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, 20, state -> {
+            // Apply our generic idle animation.
+            // Whether it plays or not is decided down below.
+            state.getController().setAnimation(DefaultAnimations.IDLE);
 
-			// Let's gather some data from the state to use below
-			// This is the entity that is currently wearing/holding the item
-			Entity entity = state.getData(DataTickets.ENTITY);
+            // Let's gather some data from the state to use below
+            // This is the entity that is currently wearing/holding the item
+            Entity entity = state.getData(DataTickets.ENTITY);
 
-			// We'll just have ArmorStands always animate, so we can return here
-			if (entity instanceof ArmorStand)
-				return PlayState.CONTINUE;
+            // We'll just have ArmorStands always animate, so we can return here
+            if (entity instanceof ArmorStand)
+                return PlayState.CONTINUE;
 
-			// For this example, we only want the animation to play if the entity is wearing all pieces of the armor
-			// Let's collect the armor pieces the entity is currently wearing
-			Set<Item> wornArmor = new ObjectOpenHashSet<>();
+            // For this example, we only want the animation to play if the entity is wearing all pieces of the armor
+            // Let's collect the armor pieces the entity is currently wearing
+            Set<Item> wornArmor = new ObjectOpenHashSet<>();
 
-			for (ItemStack stack : entity.getArmorSlots()) {
-				// We can stop immediately if any of the slots are empty
-				if (stack.isEmpty())
-					return PlayState.STOP;
+            for (ItemStack stack : entity.getArmorSlots()) {
+                // We can stop immediately if any of the slots are empty
+                if (stack.isEmpty())
+                    return PlayState.STOP;
 
-				wornArmor.add(stack.getItem());
-			}
+                wornArmor.add(stack.getItem());
+            }
 
-			// Check each of the pieces match our set
-			boolean isFullSet = wornArmor.containsAll(ObjectArrayList.of(
-					ItemRegistry.GECKO_ARMOR_BOOTS,
-					ItemRegistry.GECKO_ARMOR_LEGGINGS,
-					ItemRegistry.GECKO_ARMOR_CHESTPLATE,
-					ItemRegistry.GECKO_ARMOR_HELMET));
+            // Check each of the pieces match our set
+            boolean isFullSet = wornArmor.containsAll(ObjectArrayList.of(
+                    ItemRegistry.GECKO_ARMOR_BOOTS,
+                    ItemRegistry.GECKO_ARMOR_LEGGINGS,
+                    ItemRegistry.GECKO_ARMOR_CHESTPLATE,
+                    ItemRegistry.GECKO_ARMOR_HELMET));
 
-			// Play the animation if the full set is being worn, otherwise stop
-			return isFullSet ? PlayState.CONTINUE : PlayState.STOP;
-		}));
-	}
+            // Play the animation if the full set is being worn, otherwise stop
+            return isFullSet ? PlayState.CONTINUE : PlayState.STOP;
+        }));
+    }
 
-	@Override
-	public AnimatableInstanceCache getAnimatableInstanceCache() {
-		return this.cache;
-	}
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
 }

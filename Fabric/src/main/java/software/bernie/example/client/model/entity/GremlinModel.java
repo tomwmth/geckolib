@@ -8,10 +8,11 @@ import software.bernie.geckolib.model.GeoModel;
 
 /**
  * Example {@link GeoModel} for the {@link DynamicExampleEntity}
+ *
  * @see software.bernie.example.client.renderer.entity.GremlinRenderer
  */
 public class GremlinModel extends DefaultedEntityGeoModel<DynamicExampleEntity> {
-	public GremlinModel() {
-		super(new ResourceLocation(GeckoLib.MOD_ID, "gremlin"));
-	}
+    public GremlinModel() {
+        super(new ResourceLocation(GeckoLib.MOD_ID, "gremlin"));
+    }
 }

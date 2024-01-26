@@ -27,6 +27,10 @@ public final class KeyframeStack<T extends Keyframe<?>> {
         this(new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>());
     }
 
+    public static <F extends Keyframe<?>> KeyframeStack<F> from(KeyframeStack<F> otherStack) {
+        return new KeyframeStack<>(otherStack.xKeyframes, otherStack.yKeyframes, otherStack.zKeyframes);
+    }
+
     public List<T> xKeyframes() {
         return this.xKeyframes;
     }
@@ -57,9 +61,5 @@ public final class KeyframeStack<T extends Keyframe<?>> {
         }
 
         return Math.max(xTime, Math.max(yTime, zTime));
-    }
-
-    public static <F extends Keyframe<?>> KeyframeStack<F> from(KeyframeStack<F> otherStack) {
-        return new KeyframeStack<>(otherStack.xKeyframes, otherStack.yKeyframes, otherStack.zKeyframes);
     }
 }

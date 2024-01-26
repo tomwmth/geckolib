@@ -8,9 +8,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import software.bernie.geckolib.GeckoLib;
 
 public final class SoundRegistry {
-	public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT,
-			GeckoLib.MOD_ID);
+    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT,
+            GeckoLib.MOD_ID);
 
-	public static DeferredHolder<SoundEvent, SoundEvent> JACK_MUSIC = SOUNDS.register("jack_in_the_box_music",
-			() -> SoundEvent.createVariableRangeEvent(new ResourceLocation(GeckoLib.MOD_ID, "jack_in_the_box_music")));
+    public static DeferredHolder<SoundEvent, SoundEvent> JACK_MUSIC = SOUNDS.register("jack_in_the_box_music",
+            () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(GeckoLib.MOD_ID, "jack_in_the_box_music")));
 }

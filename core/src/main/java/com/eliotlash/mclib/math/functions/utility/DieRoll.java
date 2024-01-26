@@ -2,6 +2,7 @@ package com.eliotlash.mclib.math.functions.utility;
 
 import com.eliotlash.mclib.math.IValue;
 import com.eliotlash.mclib.math.functions.Function;
+
 import java.util.Random;
 
 public class DieRoll extends Function {

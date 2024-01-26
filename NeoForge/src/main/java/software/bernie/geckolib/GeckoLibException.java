@@ -9,14 +9,14 @@ import java.io.Serial;
  * Mostly just serves as a marker for internal error handling.
  */
 public class GeckoLibException extends RuntimeException {
-	@Serial
-	private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-	public GeckoLibException(ResourceLocation fileLocation, String message) {
-		super(fileLocation + ": " + message);
-	}
+    public GeckoLibException(ResourceLocation fileLocation, String message) {
+        super(fileLocation + ": " + message);
+    }
 
-	public GeckoLibException(ResourceLocation fileLocation, String message, Throwable cause) {
-		super(fileLocation + ": " + message, cause);
-	}
+    public GeckoLibException(ResourceLocation fileLocation, String message, Throwable cause) {
+        super(fileLocation + ": " + message, cause);
+    }
 }

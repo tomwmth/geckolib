@@ -16,7 +16,8 @@ import software.bernie.geckolib.mixins.fabric.ItemRendererAccessor;
  * This can be safely instantiated as a new anonymous class inside your {@link Item} class
  */
 public interface RenderProvider {
-    RenderProvider DEFAULT = new RenderProvider() {};
+    RenderProvider DEFAULT = new RenderProvider() {
+    };
 
     static RenderProvider of(ItemStack itemStack) {
         return of(itemStack.getItem());
@@ -24,13 +25,13 @@ public interface RenderProvider {
 
     static RenderProvider of(Item item) {
         if (item instanceof GeoItem geoItem)
-            return (RenderProvider)geoItem.getRenderProvider().get();
+            return (RenderProvider) geoItem.getRenderProvider().get();
 
         return DEFAULT;
     }
 
     default BlockEntityWithoutLevelRenderer getCustomRenderer() {
-        return ((ItemRendererAccessor)Minecraft.getInstance().getItemRenderer()).getBlockEntityRenderer();
+        return ((ItemRendererAccessor) Minecraft.getInstance().getItemRenderer()).getBlockEntityRenderer();
     }
 
 

@@ -14,13 +14,13 @@ import javax.annotation.Nullable;
  * Container class for model information, only used in deserialization at startup
  */
 public record Model(@Nullable FormatVersion formatVersion, MinecraftGeometry[] minecraftGeometry) {
-	public static JsonDeserializer<Model> deserializer() throws JsonParseException {
-		return (json, type, context) -> {
-			JsonObject obj = json.getAsJsonObject();
-			FormatVersion formatVersion = context.deserialize(obj.get("format_version"), FormatVersion.class);
-			MinecraftGeometry[] minecraftGeometry = JsonUtil.jsonArrayToObjectArray(GsonHelper.getAsJsonArray(obj, "minecraft:geometry", new JsonArray(0)), context, MinecraftGeometry.class);
+    public static JsonDeserializer<Model> deserializer() throws JsonParseException {
+        return (json, type, context) -> {
+            JsonObject obj = json.getAsJsonObject();
+            FormatVersion formatVersion = context.deserialize(obj.get("format_version"), FormatVersion.class);
+            MinecraftGeometry[] minecraftGeometry = JsonUtil.jsonArrayToObjectArray(GsonHelper.getAsJsonArray(obj, "minecraft:geometry", new JsonArray(0)), context, MinecraftGeometry.class);
 
-			return new Model(formatVersion, minecraftGeometry);
-		};
-	}
+            return new Model(formatVersion, minecraftGeometry);
+        };
+    }
 }

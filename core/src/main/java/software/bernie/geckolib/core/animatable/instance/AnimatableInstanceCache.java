@@ -19,6 +19,7 @@ public abstract class AnimatableInstanceCache {
      * This creates or gets the cached animatable manager for any unique ID.<br>
      * For itemstacks, this is typically a reserved ID provided by GeckoLib. {@code Entities} and {@code BlockEntities}
      * pass their position or int ID. They typically only have one {@link AnimatableManager} per cache anyway
+     *
      * @param uniqueId A unique ID. For every ID the same animation manager
      *                 will be returned.
      */
@@ -26,9 +27,10 @@ public abstract class AnimatableInstanceCache {
 
     /**
      * Helper method to set a data point in the {@link AnimatableManager#setData manager} for this animatable.
-     * @param uniqueId The unique identifier for this animatable instance
+     *
+     * @param uniqueId   The unique identifier for this animatable instance
      * @param dataTicket The DataTicket for the data
-     * @param data The data to store
+     * @param data       The data to store
      */
     public <D> void addDataPoint(long uniqueId, DataTicket<D> dataTicket, D data) {
         getManagerForId(uniqueId).setData(dataTicket, data);
@@ -36,7 +38,8 @@ public abstract class AnimatableInstanceCache {
 
     /**
      * Helper method to get a data point from the {@link AnimatableManager#getData data collection} for this animatable.
-     * @param uniqueId The unique identifier for this animatable instance
+     *
+     * @param uniqueId   The unique identifier for this animatable instance
      * @param dataTicket The DataTicket for the data
      */
     public <D> D getDataPoint(long uniqueId, DataTicket<D> dataTicket) {

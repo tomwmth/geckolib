@@ -40,55 +40,6 @@ public final class Animation {
         this.keyFrames = keyFrames;
     }
 
-    public static final class Keyframes {
-        private final SoundKeyframeData[] sounds;
-        private final ParticleKeyframeData[] particles;
-        private final CustomInstructionKeyframeData[] customInstructions;
-
-        public Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles,
-                         CustomInstructionKeyframeData[] customInstructions) {
-            this.sounds = sounds;
-            this.particles = particles;
-            this.customInstructions = customInstructions;
-        }
-
-        public SoundKeyframeData[] sounds() {
-            return sounds;
-        }
-
-        public ParticleKeyframeData[] particles() {
-            return particles;
-        }
-
-        public CustomInstructionKeyframeData[] customInstructions() {
-            return customInstructions;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) return true;
-            if (obj == null || obj.getClass() != this.getClass()) return false;
-            Keyframes that = (Keyframes) obj;
-            return Objects.equals(this.sounds, that.sounds) &&
-                    Objects.equals(this.particles, that.particles) &&
-                    Objects.equals(this.customInstructions, that.customInstructions);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(sounds, particles, customInstructions);
-        }
-
-        @Override
-        public String toString() {
-            return "Keyframes[" +
-                    "sounds=" + sounds + ", " +
-                    "particles=" + particles + ", " +
-                    "customInstructions=" + customInstructions + ']';
-        }
-
-        }
-
     static Animation generateWaitAnimation(double length) {
         return new Animation(RawAnimation.Stage.WAIT, length, LoopType.PLAY_ONCE, new BoneAnimation[0],
                 new Keyframes(new SoundKeyframeData[0], new ParticleKeyframeData[0], new CustomInstructionKeyframeData[0]));
@@ -141,7 +92,6 @@ public final class Animation {
                 "keyFrames=" + keyFrames + ']';
     }
 
-
     /**
      * Loop type functional interface to define post-play handling for a given animation. <br>
      * Custom loop types are supported by extending this class and providing the extended class instance as the loop type for the animation
@@ -158,16 +108,6 @@ public final class Animation {
             return true;
         });
         LoopType LOOP = register("loop", register("true", (animatable, controller, currentAnimation) -> true));
-
-        /**
-         * Override in a custom instance to dynamically decide whether an animation should repeat or stop
-         *
-         * @param animatable       The animating object relevant to this method call
-         * @param controller       The {@link AnimationController} playing the current animation
-         * @param currentAnimation The current animation that just played
-         * @return Whether the animation should play again, or stop
-         */
-        boolean shouldPlayAgain(GeoAnimatable animatable, AnimationController<? extends GeoAnimatable> controller, Animation currentAnimation);
 
         /**
          * Retrieve a LoopType instance based on a {@link JsonElement}.
@@ -210,5 +150,64 @@ public final class Animation {
 
             return loopType;
         }
+
+        /**
+         * Override in a custom instance to dynamically decide whether an animation should repeat or stop
+         *
+         * @param animatable       The animating object relevant to this method call
+         * @param controller       The {@link AnimationController} playing the current animation
+         * @param currentAnimation The current animation that just played
+         * @return Whether the animation should play again, or stop
+         */
+        boolean shouldPlayAgain(GeoAnimatable animatable, AnimationController<? extends GeoAnimatable> controller, Animation currentAnimation);
+    }
+
+    public static final class Keyframes {
+        private final SoundKeyframeData[] sounds;
+        private final ParticleKeyframeData[] particles;
+        private final CustomInstructionKeyframeData[] customInstructions;
+
+        public Keyframes(SoundKeyframeData[] sounds, ParticleKeyframeData[] particles,
+                         CustomInstructionKeyframeData[] customInstructions) {
+            this.sounds = sounds;
+            this.particles = particles;
+            this.customInstructions = customInstructions;
+        }
+
+        public SoundKeyframeData[] sounds() {
+            return sounds;
+        }
+
+        public ParticleKeyframeData[] particles() {
+            return particles;
+        }
+
+        public CustomInstructionKeyframeData[] customInstructions() {
+            return customInstructions;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) return true;
+            if (obj == null || obj.getClass() != this.getClass()) return false;
+            Keyframes that = (Keyframes) obj;
+            return Objects.equals(this.sounds, that.sounds) &&
+                    Objects.equals(this.particles, that.particles) &&
+                    Objects.equals(this.customInstructions, that.customInstructions);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(sounds, particles, customInstructions);
+        }
+
+        @Override
+        public String toString() {
+            return "Keyframes[" +
+                    "sounds=" + sounds + ", " +
+                    "particles=" + particles + ", " +
+                    "customInstructions=" + customInstructions + ']';
+        }
+
     }
 }

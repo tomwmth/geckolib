@@ -30,10 +30,11 @@ public class DataTicket<D> {
 
     /**
      * Reverse getter function for consistent operation of ticket data retrieval
+     *
      * @param dataMap The data map to retrieve the data from
      * @return The data from the map, or null if the data hasn't been stored
      */
     public <D> D getData(Map<? extends DataTicket<?>, ?> dataMap) {
-        return (D)dataMap.get(this);
+        return (D) dataMap.get(this);
     }
 }

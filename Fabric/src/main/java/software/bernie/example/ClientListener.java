@@ -24,35 +24,35 @@ import software.bernie.geckolib.network.GeckoLibNetwork;
 
 public final class ClientListener implements ClientModInitializer {
 
-	@Override
-	public void onInitializeClient() {
-		if (GeckoLibMod.shouldRegisterExamples())
-			registerRenderers();
-		registerNetwork();
-	}
+    private static void registerRenderers() {
+        EntityRendererRegistry.register(EntityRegistry.BAT, BatRenderer::new);
+        EntityRendererRegistry.register(EntityRegistry.BIKE, BikeRenderer::new);
+        EntityRendererRegistry.register(EntityRegistry.RACE_CAR, RaceCarRenderer::new);
 
-	private static void registerRenderers() {
-		EntityRendererRegistry.register(EntityRegistry.BAT, BatRenderer::new);
-		EntityRendererRegistry.register(EntityRegistry.BIKE, BikeRenderer::new);
-		EntityRendererRegistry.register(EntityRegistry.RACE_CAR, RaceCarRenderer::new);
+        EntityRendererRegistry.register(EntityRegistry.PARASITE, ParasiteRenderer::new);
+        EntityRendererRegistry.register(EntityRegistry.COOL_KID, CoolKidRenderer::new);
+        EntityRendererRegistry.register(EntityRegistry.MUTANT_ZOMBIE, MutantZombieRenderer::new);
+        EntityRendererRegistry.register(EntityRegistry.GREMLIN, GremlinRenderer::new);
 
-		EntityRendererRegistry.register(EntityRegistry.PARASITE, ParasiteRenderer::new);
-		EntityRendererRegistry.register(EntityRegistry.COOL_KID, CoolKidRenderer::new);
-		EntityRendererRegistry.register(EntityRegistry.MUTANT_ZOMBIE, MutantZombieRenderer::new);
-		EntityRendererRegistry.register(EntityRegistry.GREMLIN, GremlinRenderer::new);
+        EntityRendererRegistry.register(EntityRegistry.FAKE_GLASS, FakeGlassRenderer::new);
+        EntityRendererRegistry.register(EntityType.CREEPER, ReplacedCreeperRenderer::new);
 
-		EntityRendererRegistry.register(EntityRegistry.FAKE_GLASS, FakeGlassRenderer::new);
-		EntityRendererRegistry.register(EntityType.CREEPER, ReplacedCreeperRenderer::new);
+        BlockEntityRendererRegistry.register(BlockEntityRegistry.GECKO_HABITAT,
+                context -> new GeckoHabitatBlockRenderer());
+        BlockEntityRendererRegistry.register(BlockEntityRegistry.FERTILIZER_BLOCK,
+                context -> new FertilizerBlockRenderer());
 
-		BlockEntityRendererRegistry.register(BlockEntityRegistry.GECKO_HABITAT,
-				context -> new GeckoHabitatBlockRenderer());
-		BlockEntityRendererRegistry.register(BlockEntityRegistry.FERTILIZER_BLOCK,
-				context -> new FertilizerBlockRenderer());
+        BlockRenderLayerMapImpl.INSTANCE.putBlock(BlockRegistry.GECKO_HABITAT_BLOCK, RenderType.translucent());
+    }
 
-		BlockRenderLayerMapImpl.INSTANCE.putBlock(BlockRegistry.GECKO_HABITAT_BLOCK, RenderType.translucent());
-	}
+    private static void registerNetwork() {
+        GeckoLibNetwork.registerClientReceiverPackets();
+    }
 
-	private static void registerNetwork() {
-		GeckoLibNetwork.registerClientReceiverPackets();
-	}
+    @Override
+    public void onInitializeClient() {
+        if (GeckoLibMod.shouldRegisterExamples())
+            registerRenderers();
+        registerNetwork();
+    }
 }

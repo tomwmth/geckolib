@@ -53,6 +53,7 @@ public abstract class DyeableGeoArmorRenderer<T extends Item & GeoItem> extends 
     /**
      * Whether the given GeoBone should be considered dyeable or not.
      * <p>Note that values returned from here are cached for the last rendered {@link BakedGeoModel} and require a manual reset if you intend to change these results.</p>
+     *
      * @return whether the bone should be dyed or not
      */
     protected abstract boolean isBoneDyeable(GeoBone bone);

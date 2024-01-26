@@ -20,44 +20,44 @@ import software.bernie.geckolib.util.ClientUtils;
  * BlockEntities}
  */
 public class BlockEntityAnimDataSyncPacket<D> extends AbstractPacket {
-	private final BlockPos BLOCK_POS;
-	private final SerializableDataTicket<D> DATA_TICKET;
-	private final D DATA;
+    private final BlockPos BLOCK_POS;
+    private final SerializableDataTicket<D> DATA_TICKET;
+    private final D DATA;
 
-	public BlockEntityAnimDataSyncPacket(BlockPos pos, SerializableDataTicket<D> dataTicket, D data) {
-		this.BLOCK_POS = pos;
-		this.DATA_TICKET = dataTicket;
-		this.DATA = data;
-	}
+    public BlockEntityAnimDataSyncPacket(BlockPos pos, SerializableDataTicket<D> dataTicket, D data) {
+        this.BLOCK_POS = pos;
+        this.DATA_TICKET = dataTicket;
+        this.DATA = data;
+    }
 
-	@Override
-	public FriendlyByteBuf encode() {
-		FriendlyByteBuf buf = PacketByteBufs.create();
+    public static <D> void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
+        final BlockPos BLOCK_POS = buf.readBlockPos();
+        final SerializableDataTicket<D> DATA_TICKET = (SerializableDataTicket<D>) DataTickets.byName(buf.readUtf());
+        final D DATA = DATA_TICKET.decode(buf);
 
-		buf.writeBlockPos(this.BLOCK_POS);
-		buf.writeUtf(this.DATA_TICKET.id());
-		this.DATA_TICKET.encode(this.DATA, buf);
+        client.execute(() -> runOnThread(BLOCK_POS, DATA_TICKET, DATA));
+    }
 
-		return buf;
-	}
+    private static <D> void runOnThread(BlockPos blockPos, SerializableDataTicket<D> dataTicket, D data) {
+        BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(blockPos);
 
-	@Override
-	public ResourceLocation getPacketID() {
-		return GeckoLibNetwork.BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID;
-	}
+        if (blockEntity instanceof GeoBlockEntity geoBlockEntity)
+            geoBlockEntity.setAnimData(dataTicket, data);
+    }
 
-	public static <D> void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
-		final BlockPos BLOCK_POS = buf.readBlockPos();
-		final SerializableDataTicket<D> DATA_TICKET = (SerializableDataTicket<D>) DataTickets.byName(buf.readUtf());
-		final D DATA = DATA_TICKET.decode(buf);
+    @Override
+    public FriendlyByteBuf encode() {
+        FriendlyByteBuf buf = PacketByteBufs.create();
 
-		client.execute(() -> runOnThread(BLOCK_POS, DATA_TICKET, DATA));
-	}
+        buf.writeBlockPos(this.BLOCK_POS);
+        buf.writeUtf(this.DATA_TICKET.id());
+        this.DATA_TICKET.encode(this.DATA, buf);
 
-	private static <D> void runOnThread(BlockPos blockPos, SerializableDataTicket<D> dataTicket, D data) {
-		BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(blockPos);
+        return buf;
+    }
 
-		if (blockEntity instanceof GeoBlockEntity geoBlockEntity)
-			geoBlockEntity.setAnimData(dataTicket, data);
-	}
+    @Override
+    public ResourceLocation getPacketID() {
+        return GeckoLibNetwork.BLOCK_ENTITY_ANIM_DATA_SYNC_PACKET_ID;
+    }
 }

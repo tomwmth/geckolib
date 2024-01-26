@@ -15,55 +15,55 @@ import software.bernie.geckolib.GeckoLib;
 
 public final class GeckoLibMod implements ModInitializer {
 
-	public static final String DISABLE_EXAMPLES_PROPERTY_KEY = "geckolib.disable_examples";
-	private static final boolean isDevelopmentEnvironment = FabricLoader.getInstance().isDevelopmentEnvironment();
+    public static final String DISABLE_EXAMPLES_PROPERTY_KEY = "geckolib.disable_examples";
+    private static final boolean isDevelopmentEnvironment = FabricLoader.getInstance().isDevelopmentEnvironment();
 
-	@Override
-	public void onInitialize() {
-		GeckoLib.initialize();
-		if (!shouldRegisterExamples()) {
-			return;
-		}
+    private static AttributeSupplier.Builder createGenericEntityAttributes() {
+        return PathfinderMob.createLivingAttributes().add(Attributes.MOVEMENT_SPEED, 0.80000000298023224D)
+                .add(Attributes.FOLLOW_RANGE, 16.0D).add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.ATTACK_DAMAGE, 5)
+                .add(Attributes.ATTACK_KNOCKBACK, 0.1);
+    }
 
-		new EntityRegistry();
-		registerEntityAttributes();
+    /**
+     * By default, GeckoLib will register and activate several example entities,
+     * items, and blocks when in dev.<br>
+     * These examples are <u>not</u> present when in a production environment
+     * (normal players).<br>
+     * This can be disabled by setting the
+     * {@link GeckoLibMod#DISABLE_EXAMPLES_PROPERTY_KEY} to false in your run args
+     */
+    static boolean shouldRegisterExamples() {
+        return isDevelopmentEnvironment && !Boolean.getBoolean(DISABLE_EXAMPLES_PROPERTY_KEY);
+    }
 
-		new ItemRegistry();
-		new BlockEntityRegistry();
+    @Override
+    public void onInitialize() {
+        GeckoLib.initialize();
+        if (!shouldRegisterExamples()) {
+            return;
+        }
 
-		new BlockRegistry();
-		new SoundRegistry();
-	}
+        new EntityRegistry();
+        registerEntityAttributes();
 
-	private void registerEntityAttributes() {
-		FabricDefaultAttributeRegistry.register(EntityRegistry.BIKE, createGenericEntityAttributes());
-		FabricDefaultAttributeRegistry.register(EntityRegistry.RACE_CAR, createGenericEntityAttributes());
+        new ItemRegistry();
+        new BlockEntityRegistry();
 
-		FabricDefaultAttributeRegistry.register(EntityRegistry.BAT, createGenericEntityAttributes());
-		FabricDefaultAttributeRegistry.register(EntityRegistry.MUTANT_ZOMBIE, createGenericEntityAttributes());
-		FabricDefaultAttributeRegistry.register(EntityRegistry.GREMLIN, createGenericEntityAttributes());
+        new BlockRegistry();
+        new SoundRegistry();
+    }
 
-		FabricDefaultAttributeRegistry.register(EntityRegistry.COOL_KID, createGenericEntityAttributes());
-		FabricDefaultAttributeRegistry.register(EntityRegistry.FAKE_GLASS, createGenericEntityAttributes());
+    private void registerEntityAttributes() {
+        FabricDefaultAttributeRegistry.register(EntityRegistry.BIKE, createGenericEntityAttributes());
+        FabricDefaultAttributeRegistry.register(EntityRegistry.RACE_CAR, createGenericEntityAttributes());
 
-		FabricDefaultAttributeRegistry.register(EntityRegistry.PARASITE, createGenericEntityAttributes());
-	}
+        FabricDefaultAttributeRegistry.register(EntityRegistry.BAT, createGenericEntityAttributes());
+        FabricDefaultAttributeRegistry.register(EntityRegistry.MUTANT_ZOMBIE, createGenericEntityAttributes());
+        FabricDefaultAttributeRegistry.register(EntityRegistry.GREMLIN, createGenericEntityAttributes());
 
-	private static AttributeSupplier.Builder createGenericEntityAttributes() {
-		return PathfinderMob.createLivingAttributes().add(Attributes.MOVEMENT_SPEED, 0.80000000298023224D)
-				.add(Attributes.FOLLOW_RANGE, 16.0D).add(Attributes.MAX_HEALTH, 10.0D).add(Attributes.ATTACK_DAMAGE, 5)
-				.add(Attributes.ATTACK_KNOCKBACK, 0.1);
-	}
+        FabricDefaultAttributeRegistry.register(EntityRegistry.COOL_KID, createGenericEntityAttributes());
+        FabricDefaultAttributeRegistry.register(EntityRegistry.FAKE_GLASS, createGenericEntityAttributes());
 
-	/**
-	 * By default, GeckoLib will register and activate several example entities,
-	 * items, and blocks when in dev.<br>
-	 * These examples are <u>not</u> present when in a production environment
-	 * (normal players).<br>
-	 * This can be disabled by setting the
-	 * {@link GeckoLibMod#DISABLE_EXAMPLES_PROPERTY_KEY} to false in your run args
-	 */
-	static boolean shouldRegisterExamples() {
-		return isDevelopmentEnvironment && !Boolean.getBoolean(DISABLE_EXAMPLES_PROPERTY_KEY);
-	}
+        FabricDefaultAttributeRegistry.register(EntityRegistry.PARASITE, createGenericEntityAttributes());
+    }
 }

@@ -22,81 +22,79 @@ import java.util.function.Consumer;
  * Mostly just handles boilerplate
  */
 public abstract class GeoAbstractTexture extends AbstractTexture {
-	/**
-	 * Generates the texture instance for the given path with the given appendix if it hasn't already been generated
-	 */
-	protected static void generateTexture(ResourceLocation texturePath, Consumer<TextureManager> textureManagerConsumer) {
-		if (!RenderSystem.isOnRenderThreadOrInit())
-			throw new IllegalThreadStateException("Texture loading called outside of the render thread! This should DEFINITELY not be happening.");
+    /**
+     * Generates the texture instance for the given path with the given appendix if it hasn't already been generated
+     */
+    protected static void generateTexture(ResourceLocation texturePath, Consumer<TextureManager> textureManagerConsumer) {
+        if (!RenderSystem.isOnRenderThreadOrInit())
+            throw new IllegalThreadStateException("Texture loading called outside of the render thread! This should DEFINITELY not be happening.");
 
-		TextureManager textureManager = Minecraft.getInstance().getTextureManager();
+        TextureManager textureManager = Minecraft.getInstance().getTextureManager();
 
-		if (!(textureManager.getTexture(texturePath, MissingTextureAtlasSprite.getTexture()) instanceof GeoAbstractTexture))
-			textureManagerConsumer.accept(textureManager);
-	}
+        if (!(textureManager.getTexture(texturePath, MissingTextureAtlasSprite.getTexture()) instanceof GeoAbstractTexture))
+            textureManagerConsumer.accept(textureManager);
+    }
 
-	@Override
-	public final void load(ResourceManager resourceManager) throws IOException {
-		RenderCall renderCall = loadTexture(resourceManager, Minecraft.getInstance());
+    /**
+     * No-frills helper method for uploading {@link NativeImage images} into memory for use
+     */
+    public static void uploadSimple(int texture, NativeImage image, boolean blur, boolean clamp) {
+        TextureUtil.prepareImage(texture, 0, image.getWidth(), image.getHeight());
+        image.upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), blur, clamp, false, true);
+    }
 
-		if (renderCall == null)
-			return;
+    public static ResourceLocation appendToPath(ResourceLocation location, String suffix) {
+        String path = location.getPath();
+        int i = path.lastIndexOf('.');
 
-		if (!RenderSystem.isOnRenderThreadOrInit()) {
-			RenderSystem.recordRenderCall(renderCall);
-		}
-		else {
-			renderCall.execute();
-		}
-	}
+        return new ResourceLocation(location.getNamespace(), path.substring(0, i) + suffix + path.substring(i));
+    }
 
-	/**
-	 * Debugging function to write out the generated glowmap image to disk
-	 */
-	protected void printDebugImageToDisk(ResourceLocation id, NativeImage newImage) {
-		try {
-			File file = new File(FMLPaths.GAMEDIR.get().toFile(), "GeoTexture Debug Printouts");
+    @Override
+    public final void load(ResourceManager resourceManager) throws IOException {
+        RenderCall renderCall = loadTexture(resourceManager, Minecraft.getInstance());
 
-			if (!file.exists()) {
-				file.mkdirs();
-			}
-			else if (!file.isDirectory()) {
-				file.delete();
-				file.mkdirs();
-			}
+        if (renderCall == null)
+            return;
 
-			file = new File(file, id.getPath().replace('/', '.'));
+        if (!RenderSystem.isOnRenderThreadOrInit()) {
+            RenderSystem.recordRenderCall(renderCall);
+        } else {
+            renderCall.execute();
+        }
+    }
 
-			if (!file.exists())
-				file.createNewFile();
+    /**
+     * Debugging function to write out the generated glowmap image to disk
+     */
+    protected void printDebugImageToDisk(ResourceLocation id, NativeImage newImage) {
+        try {
+            File file = new File(FMLPaths.GAMEDIR.get().toFile(), "GeoTexture Debug Printouts");
 
-			newImage.writeToFile(file);
-		}
-		catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
+            if (!file.exists()) {
+                file.mkdirs();
+            } else if (!file.isDirectory()) {
+                file.delete();
+                file.mkdirs();
+            }
 
-	/**
-	 * Called at {@link AbstractTexture#load} time to load this texture for the first time into the render cache.
-	 * Generate and apply the necessary functions here, then return the RenderCall to submit to the render pipeline.
-	 * @return The RenderCall to submit to the render pipeline, or null if no further action required
-	 */
-	@Nullable
-	protected abstract RenderCall loadTexture(ResourceManager resourceManager, Minecraft mc) throws IOException;
+            file = new File(file, id.getPath().replace('/', '.'));
 
-	/**
-	 * No-frills helper method for uploading {@link NativeImage images} into memory for use
-	 */
-	public static void uploadSimple(int texture, NativeImage image, boolean blur, boolean clamp) {
-		TextureUtil.prepareImage(texture, 0, image.getWidth(), image.getHeight());
-		image.upload(0, 0, 0, 0, 0, image.getWidth(), image.getHeight(), blur, clamp, false, true);
-	}
+            if (!file.exists())
+                file.createNewFile();
 
-	public static ResourceLocation appendToPath(ResourceLocation location, String suffix) {
-		String path = location.getPath();
-		int i = path.lastIndexOf('.');
+            newImage.writeToFile(file);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
 
-		return new ResourceLocation(location.getNamespace(), path.substring(0, i) + suffix + path.substring(i));
-	}
+    /**
+     * Called at {@link AbstractTexture#load} time to load this texture for the first time into the render cache.
+     * Generate and apply the necessary functions here, then return the RenderCall to submit to the render pipeline.
+     *
+     * @return The RenderCall to submit to the render pipeline, or null if no further action required
+     */
+    @Nullable
+    protected abstract RenderCall loadTexture(ResourceManager resourceManager, Minecraft mc) throws IOException;
 }

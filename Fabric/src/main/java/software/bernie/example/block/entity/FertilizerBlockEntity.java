@@ -14,37 +14,36 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Example {@link BlockEntity} implementation using a GeckoLib model.
+ *
  * @see software.bernie.example.client.model.block.FertilizerModel
  * @see FertilizerBlockRenderer
  */
 public class FertilizerBlockEntity extends BlockEntity implements GeoBlockEntity {
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    // We statically instantiate our RawAnimations for efficiency, consistency, and error-proofing
+    private static final RawAnimation FERTILIZER_ANIMS = RawAnimation.begin().thenPlay("fertilizer.deploy").thenLoop("fertilizer.idle");
+    private static final RawAnimation BOTARIUM_ANIMS = RawAnimation.begin().thenPlay("botarium.deploy").thenLoop("botarium.idle");
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-	// We statically instantiate our RawAnimations for efficiency, consistency, and error-proofing
-	private static final RawAnimation FERTILIZER_ANIMS = RawAnimation.begin().thenPlay("fertilizer.deploy").thenLoop("fertilizer.idle");
-	private static final RawAnimation BOTARIUM_ANIMS = RawAnimation.begin().thenPlay("botarium.deploy").thenLoop("botarium.idle");
+    public FertilizerBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntityRegistry.FERTILIZER_BLOCK, pos, state);
+    }
 
-	public FertilizerBlockEntity(BlockPos pos, BlockState state) {
-		super(BlockEntityRegistry.FERTILIZER_BLOCK, pos, state);
-	}
+    // Let's set our animations up
+    // For this one, we want it to play the "Fertilizer" animation set if it's raining,
+    // or switch to a botarium if it's not.
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, state -> {
+            if (state.getAnimatable().getLevel().isRaining()) {
+                return state.setAndContinue(FERTILIZER_ANIMS);
+            } else {
+                return state.setAndContinue(BOTARIUM_ANIMS);
+            }
+        }));
+    }
 
-	// Let's set our animations up
-	// For this one, we want it to play the "Fertilizer" animation set if it's raining,
-	// or switch to a botarium if it's not.
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, state -> {
-			if (state.getAnimatable().getLevel().isRaining()) {
-				return state.setAndContinue(FERTILIZER_ANIMS);
-			}
-			else {
-				return state.setAndContinue(BOTARIUM_ANIMS);
-			}
-		}));
-	}
-
-	@Override
-	public AnimatableInstanceCache getAnimatableInstanceCache() {
-		return this.cache;
-	}
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
 }

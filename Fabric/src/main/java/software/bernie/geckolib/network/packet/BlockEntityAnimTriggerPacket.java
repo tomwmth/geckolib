@@ -31,21 +31,6 @@ public class BlockEntityAnimTriggerPacket extends AbstractPacket {
         this.ANIM_NAME = animName;
     }
 
-    public FriendlyByteBuf encode() {
-        FriendlyByteBuf buf = PacketByteBufs.create();
-
-        buf.writeBlockPos(this.BLOCK_POS);
-        buf.writeUtf(this.CONTROLLER_NAME);
-        buf.writeUtf(this.ANIM_NAME);
-
-        return buf;
-    }
-
-    @Override
-    public ResourceLocation getPacketID() {
-        return GeckoLibNetwork.BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
-    }
-
     public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
         final BlockPos BLOCK_POS = buf.readBlockPos();
         final String CONTROLLER_NAME = buf.readUtf();
@@ -59,5 +44,20 @@ public class BlockEntityAnimTriggerPacket extends AbstractPacket {
 
         if (blockEntity instanceof GeoBlockEntity getBlockEntity)
             getBlockEntity.triggerAnim(controllerName.isEmpty() ? null : controllerName, animName);
+    }
+
+    public FriendlyByteBuf encode() {
+        FriendlyByteBuf buf = PacketByteBufs.create();
+
+        buf.writeBlockPos(this.BLOCK_POS);
+        buf.writeUtf(this.CONTROLLER_NAME);
+        buf.writeUtf(this.ANIM_NAME);
+
+        return buf;
+    }
+
+    @Override
+    public ResourceLocation getPacketID() {
+        return GeckoLibNetwork.BLOCK_ENTITY_ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 }

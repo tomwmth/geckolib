@@ -11,7 +11,8 @@ public final class KeyframeLocation<T extends Keyframe<?>> {
 
     /**
      * A named pair object that stores a {@link Keyframe} and a double representing a temporally placed {@code Keyframe}
-     * @param keyframe The {@code Keyframe} at the tick time
+     *
+     * @param keyframe  The {@code Keyframe} at the tick time
      * @param startTick The animation tick time at the start of this {@code Keyframe}
      */
     public KeyframeLocation(T keyframe, double startTick) {

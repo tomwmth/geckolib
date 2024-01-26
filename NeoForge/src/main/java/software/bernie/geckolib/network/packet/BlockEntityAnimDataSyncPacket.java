@@ -15,34 +15,35 @@ import software.bernie.geckolib.util.ClientUtils;
 /**
  * Packet for syncing user-definable animation data for {@link BlockEntity BlockEntities}
  */
-public record BlockEntityAnimDataSyncPacket<D>(BlockPos pos, SerializableDataTicket<D> dataTicket, D data) implements CustomPacketPayload {
-	public static final ResourceLocation ID = new ResourceLocation(GeckoLib.MOD_ID, "block_entity_anim_data_sync");
+public record BlockEntityAnimDataSyncPacket<D>(BlockPos pos, SerializableDataTicket<D> dataTicket,
+                                               D data) implements CustomPacketPayload {
+    public static final ResourceLocation ID = new ResourceLocation(GeckoLib.MOD_ID, "block_entity_anim_data_sync");
 
-	@Override
-	public ResourceLocation id() {
-		return ID;
-	}
+    public static <D> BlockEntityAnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
+        BlockPos pos = buffer.readBlockPos();
+        SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>) DataTickets.byName(buffer.readUtf());
 
-	@Override
-	public void write(FriendlyByteBuf buffer) {
-		buffer.writeBlockPos(this.pos);
-		buffer.writeUtf(this.dataTicket.id());
-		this.dataTicket.encode(this.data, buffer);
-	}
+        return new BlockEntityAnimDataSyncPacket<>(pos, dataTicket, dataTicket.decode(buffer));
+    }
 
-	public static <D> BlockEntityAnimDataSyncPacket<D> decode(FriendlyByteBuf buffer) {
-		BlockPos pos = buffer.readBlockPos();
-		SerializableDataTicket<D> dataTicket = (SerializableDataTicket<D>)DataTickets.byName(buffer.readUtf());
+    @Override
+    public ResourceLocation id() {
+        return ID;
+    }
 
-		return new BlockEntityAnimDataSyncPacket<>(pos, dataTicket, dataTicket.decode(buffer));
-	}
+    @Override
+    public void write(FriendlyByteBuf buffer) {
+        buffer.writeBlockPos(this.pos);
+        buffer.writeUtf(this.dataTicket.id());
+        this.dataTicket.encode(this.data, buffer);
+    }
 
-	public void receivePacket(PlayPayloadContext context) {
-		context.workHandler().execute(() -> {
-			BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(this.pos);
+    public void receivePacket(PlayPayloadContext context) {
+        context.workHandler().execute(() -> {
+            BlockEntity blockEntity = ClientUtils.getLevel().getBlockEntity(this.pos);
 
-			if (blockEntity instanceof GeoBlockEntity geoBlockEntity)
-				geoBlockEntity.setAnimData(this.dataTicket, this.data);
-		});
-	}
+            if (blockEntity instanceof GeoBlockEntity geoBlockEntity)
+                geoBlockEntity.setAnimData(this.dataTicket, this.data);
+        });
+    }
 }

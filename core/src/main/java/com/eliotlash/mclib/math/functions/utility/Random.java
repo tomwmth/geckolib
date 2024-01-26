@@ -14,7 +14,7 @@ public class Random extends Function {
     public double get() {
         double random;
         if (this.args.length >= 3) {
-            this.random.setSeed((long)this.getArg(2));
+            this.random.setSeed((long) this.getArg(2));
         }
         random = this.random.nextDouble();
         if (this.args.length >= 2) {

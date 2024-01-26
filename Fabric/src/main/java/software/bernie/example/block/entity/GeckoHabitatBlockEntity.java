@@ -15,32 +15,32 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Example {@link BlockEntity} implementation using a GeckoLib model.
+ *
  * @see GeckoHabitatModel
  * @see GeckoHabitatBlockRenderer
  */
 public class GeckoHabitatBlockEntity extends BlockEntity implements GeoBlockEntity {
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-	public GeckoHabitatBlockEntity(BlockPos pos, BlockState state) {
-		super(BlockEntityRegistry.GECKO_HABITAT, pos, state);
-	}
+    public GeckoHabitatBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntityRegistry.GECKO_HABITAT, pos, state);
+    }
 
-	// We just want a permanent idle animation happening here
-	// But if it's day time we want him to take a nap
-	@Override
-	public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-		controllers.add(new AnimationController<>(this, state -> {
-			if (getLevel().getDayTime() > 23000 || getLevel().getDayTime() < 13000) {
-				return state.setAndContinue(DefaultAnimations.REST);
-			}
-			else {
-				return state.setAndContinue(DefaultAnimations.IDLE);
-			}
-		}));
-	}
+    // We just want a permanent idle animation happening here
+    // But if it's day time we want him to take a nap
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, state -> {
+            if (getLevel().getDayTime() > 23000 || getLevel().getDayTime() < 13000) {
+                return state.setAndContinue(DefaultAnimations.REST);
+            } else {
+                return state.setAndContinue(DefaultAnimations.IDLE);
+            }
+        }));
+    }
 
-	@Override
-	public AnimatableInstanceCache getAnimatableInstanceCache() {
-		return this.cache;
-	}
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
 }

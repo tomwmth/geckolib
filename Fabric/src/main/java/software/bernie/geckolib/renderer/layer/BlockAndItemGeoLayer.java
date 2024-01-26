@@ -105,7 +105,7 @@ public class BlockAndItemGeoLayer<T extends GeoAnimatable> extends GeoRenderLaye
                     packedLight, packedOverlay, livingEntity.getId());
         } else {
             Minecraft.getInstance().getItemRenderer().renderStatic(stack, getTransformTypeForStack(bone, stack, animatable),
-                    packedLight, packedOverlay, poseStack, bufferSource, Minecraft.getInstance ().level, (int) this.renderer.getInstanceId(animatable));
+                    packedLight, packedOverlay, poseStack, bufferSource, Minecraft.getInstance().level, (int) this.renderer.getInstanceId(animatable));
         }
     }
 

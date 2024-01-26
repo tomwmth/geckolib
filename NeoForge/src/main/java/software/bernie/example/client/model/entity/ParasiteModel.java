@@ -10,16 +10,17 @@ import software.bernie.geckolib.model.GeoModel;
 
 /**
  * Example {@link GeoModel} for the {@link ParasiteEntity}
+ *
  * @see ParasiteRenderer
  */
 public class ParasiteModel extends DefaultedEntityGeoModel<ParasiteEntity> {
-	public ParasiteModel() {
-		super(new ResourceLocation(GeckoLib.MOD_ID, "parasite"));
-	}
+    public ParasiteModel() {
+        super(new ResourceLocation(GeckoLib.MOD_ID, "parasite"));
+    }
 
-	// We want our model to render using the translucent render type
-	@Override
-	public RenderType getRenderType(ParasiteEntity animatable, ResourceLocation texture) {
-		return RenderType.entityTranslucent(getTextureResource(animatable));
-	}
+    // We want our model to render using the translucent render type
+    @Override
+    public RenderType getRenderType(ParasiteEntity animatable, ResourceLocation texture) {
+        return RenderType.entityTranslucent(getTextureResource(animatable));
+    }
 }

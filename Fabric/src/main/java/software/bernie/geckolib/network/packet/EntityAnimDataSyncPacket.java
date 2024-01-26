@@ -19,44 +19,44 @@ import software.bernie.geckolib.util.ClientUtils;
  * {@link net.minecraft.world.entity.Entity Entities}
  */
 public class EntityAnimDataSyncPacket<D> extends AbstractPacket {
-	private final int ENTITY_ID;
-	private final SerializableDataTicket<D> DATA_TICKET;
-	private final D DATA;
+    private final int ENTITY_ID;
+    private final SerializableDataTicket<D> DATA_TICKET;
+    private final D DATA;
 
-	public EntityAnimDataSyncPacket(int entityId, SerializableDataTicket<D> dataTicket, D data) {
-		this.ENTITY_ID = entityId;
-		this.DATA_TICKET = dataTicket;
-		this.DATA = data;
-	}
+    public EntityAnimDataSyncPacket(int entityId, SerializableDataTicket<D> dataTicket, D data) {
+        this.ENTITY_ID = entityId;
+        this.DATA_TICKET = dataTicket;
+        this.DATA = data;
+    }
 
-	@Override
-	public FriendlyByteBuf encode() {
-		FriendlyByteBuf buf = PacketByteBufs.create();
+    public static <D> void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
+        final int ENTITY_ID = buf.readVarInt();
+        final SerializableDataTicket<D> DATA_TICKET = (SerializableDataTicket<D>) DataTickets.byName(buf.readUtf());
+        final D DATA = DATA_TICKET.decode(buf);
 
-		buf.writeVarInt(this.ENTITY_ID);
-		buf.writeUtf(this.DATA_TICKET.id());
-		this.DATA_TICKET.encode(this.DATA, buf);
+        client.execute(() -> runOnThread(ENTITY_ID, DATA_TICKET, DATA));
+    }
 
-		return buf;
-	}
+    private static <D> void runOnThread(int entityId, SerializableDataTicket<D> dataTicket, D data) {
+        Entity entity = ClientUtils.getLevel().getEntity(entityId);
 
-	@Override
-	public ResourceLocation getPacketID() {
-		return GeckoLibNetwork.ENTITY_ANIM_DATA_SYNC_PACKET_ID;
-	}
+        if (entity instanceof GeoEntity geoEntity)
+            geoEntity.setAnimData(dataTicket, data);
+    }
 
-	public static <D> void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
-		final int ENTITY_ID = buf.readVarInt();
-		final SerializableDataTicket<D> DATA_TICKET = (SerializableDataTicket<D>) DataTickets.byName(buf.readUtf());
-		final D DATA = DATA_TICKET.decode(buf);
+    @Override
+    public FriendlyByteBuf encode() {
+        FriendlyByteBuf buf = PacketByteBufs.create();
 
-		client.execute(() -> runOnThread(ENTITY_ID, DATA_TICKET, DATA));
-	}
+        buf.writeVarInt(this.ENTITY_ID);
+        buf.writeUtf(this.DATA_TICKET.id());
+        this.DATA_TICKET.encode(this.DATA, buf);
 
-	private static <D> void runOnThread(int entityId, SerializableDataTicket<D> dataTicket, D data) {
-		Entity entity = ClientUtils.getLevel().getEntity(entityId);
+        return buf;
+    }
 
-		if (entity instanceof GeoEntity geoEntity)
-			geoEntity.setAnimData(dataTicket, data);
-	}
+    @Override
+    public ResourceLocation getPacketID() {
+        return GeckoLibNetwork.ENTITY_ANIM_DATA_SYNC_PACKET_ID;
+    }
 }

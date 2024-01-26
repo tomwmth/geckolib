@@ -9,10 +9,11 @@ import software.bernie.geckolib.model.GeoModel;
 
 /**
  * Example {@link GeoModel} for the {@link DynamicExampleEntity}
+ *
  * @see MutantZombieRenderer
  */
 public class MutantZombieModel extends DefaultedEntityGeoModel<DynamicExampleEntity> {
-	public MutantZombieModel() {
-		super(new ResourceLocation(GeckoLib.MOD_ID, "mutant_zombie"));
-	}
+    public MutantZombieModel() {
+        super(new ResourceLocation(GeckoLib.MOD_ID, "mutant_zombie"));
+    }
 }

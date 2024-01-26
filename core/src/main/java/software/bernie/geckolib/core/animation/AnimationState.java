@@ -20,9 +20,8 @@ public class AnimationState<T extends GeoAnimatable> {
     private final float partialTick;
     private final boolean isMoving;
     private final Map<DataTicket<?>, Object> extraData = new Object2ObjectOpenHashMap<>();
-
-    protected AnimationController<T> controller;
     public double animationTick;
+    protected AnimationController<T> controller;
 
     public AnimationState(T animatable, float limbSwing, float limbSwingAmount, float partialTick, boolean isMoving) {
         this.animatable = animatable;
@@ -88,6 +87,7 @@ public class AnimationState<T extends GeoAnimatable> {
 
     /**
      * Gets the optional additional data map for the state.<br>
+     *
      * @see DataTicket
      */
     public Map<DataTicket<?>, ?> getExtraData() {
@@ -96,9 +96,10 @@ public class AnimationState<T extends GeoAnimatable> {
 
     /**
      * Get a data value saved to this animation state by the ticket for that data.<br>
-     * @see DataTicket
+     *
      * @param dataTicket The {@link DataTicket} for the data to retrieve
      * @return The cached data for the given {@code DataTicket}, or null if not saved
+     * @see DataTicket
      */
     public <D> D getData(DataTicket<D> dataTicket) {
         return dataTicket.getData(this.extraData);
@@ -106,8 +107,9 @@ public class AnimationState<T extends GeoAnimatable> {
 
     /**
      * Save a data value for the given {@link DataTicket} in the additional data map
+     *
      * @param dataTicket The {@code DataTicket} for the data value
-     * @param data The data value
+     * @param data       The data value
      */
     public <D> void setData(DataTicket<D> dataTicket, D data) {
         this.extraData.put(dataTicket, data);
@@ -116,6 +118,7 @@ public class AnimationState<T extends GeoAnimatable> {
     /**
      * Sets the animation for the controller to start/continue playing.<br>
      * Basically just a shortcut for <pre>getController().setAnimation()</pre>
+     *
      * @param animation The animation to play
      */
     public void setAnimation(RawAnimation animation) {
@@ -134,6 +137,7 @@ public class AnimationState<T extends GeoAnimatable> {
     /**
      * Checks whether the current {@link AnimationController}'s last animation was the one provided.
      * This allows for multi-stage animation shifting where the next animation to play may depend on the previous one
+     *
      * @param animation The animation to check
      * @return Whether the controller's last animation is the one provided
      */
@@ -145,6 +149,7 @@ public class AnimationState<T extends GeoAnimatable> {
      * Similar to {@link AnimationState#isCurrentAnimation}, but additionally checks the current stage of the animation by name.<br>
      * This can be used to check if a multi-stage animation has reached a given stage (if it is running at all)<br>
      * Note that this will still return true even if the animation has finished, matching with the last animation stage in the {@link RawAnimation} last provided
+     *
      * @param name The name of the animation stage to check (I.E. "move.walk")
      * @return Whether the controller's current stage is the one provided
      */
@@ -162,6 +167,7 @@ public class AnimationState<T extends GeoAnimatable> {
 
     /**
      * Helper method for {@link AnimationController#setAnimationSpeed}
+     *
      * @param speed The speed modifier for the controller (2 = twice as fast, 0.5 = half as fast, etc)
      */
     public void setControllerSpeed(float speed) {

@@ -30,22 +30,6 @@ public class AnimTriggerPacket extends AbstractPacket {
         this.animName = animName;
     }
 
-    public FriendlyByteBuf encode() {
-        FriendlyByteBuf buf = PacketByteBufs.create();
-
-        buf.writeUtf(this.syncableId);
-        buf.writeVarLong(this.instanceId);
-        buf.writeUtf(this.controllerName);
-        buf.writeUtf(this.animName);
-
-        return buf;
-    }
-
-    @Override
-    public ResourceLocation getPacketID() {
-        return GeckoLibNetwork.ANIM_TRIGGER_SYNC_PACKET_ID;
-    }
-
     public static void receive(Minecraft client, ClientPacketListener handler, FriendlyByteBuf buf, PacketSender responseSender) {
         String syncableId = buf.readUtf();
         long instanceId = buf.readVarLong();
@@ -63,5 +47,21 @@ public class AnimTriggerPacket extends AbstractPacket {
 
             manager.tryTriggerAnimation(controllerName, animName);
         }
+    }
+
+    public FriendlyByteBuf encode() {
+        FriendlyByteBuf buf = PacketByteBufs.create();
+
+        buf.writeUtf(this.syncableId);
+        buf.writeVarLong(this.instanceId);
+        buf.writeUtf(this.controllerName);
+        buf.writeUtf(this.animName);
+
+        return buf;
+    }
+
+    @Override
+    public ResourceLocation getPacketID() {
+        return GeckoLibNetwork.ANIM_TRIGGER_SYNC_PACKET_ID;
     }
 }

@@ -9,9 +9,11 @@ import java.util.Optional;
  */
 public interface CoreBakedGeoModel {
     List<? extends CoreGeoBone> getBones();
+
     /**
      * Gets a bone from this model by name.<br>
      * Generally not a very efficient method, should be avoided where possible.
+     *
      * @param name The name of the bone
      * @return An {@link Optional} containing the {@link CoreGeoBone} if one matches, otherwise an empty Optional
      */
@@ -19,8 +21,9 @@ public interface CoreBakedGeoModel {
 
     /**
      * Search a given {@link CoreGeoBone}'s child bones and see if any of them match the given name, then return it.<br>
+     *
      * @param parent The parent bone to search the children of
-     * @param name The name of the child bone to find
+     * @param name   The name of the child bone to find
      * @return The {@code GeoBone} found in the parent's children list, or null if not found
      */
     default CoreGeoBone searchForChildBone(CoreGeoBone parent, String name) {

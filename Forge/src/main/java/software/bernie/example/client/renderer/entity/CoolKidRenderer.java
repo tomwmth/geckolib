@@ -10,16 +10,17 @@ import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
  * Example {@link software.bernie.geckolib.renderer.GeoRenderer} implementation of an entity that uses a {@link software.bernie.geckolib.renderer.layer.GeoRenderLayer render layer}
+ *
  * @see CoolKidGlassesLayer
  * @see CoolKidEntity
  */
 public class CoolKidRenderer extends GeoEntityRenderer<CoolKidEntity> {
-	public CoolKidRenderer(EntityRendererProvider.Context renderManager) {
+    public CoolKidRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager, new DefaultedEntityGeoModel<>(new ResourceLocation(GeckoLib.MOD_ID, "cool_kid")));
 
-		this.shadowRadius = 0.25f;
+        this.shadowRadius = 0.25f;
 
-		// Add our render layer
-		addRenderLayer(new CoolKidGlassesLayer(this));
+        // Add our render layer
+        addRenderLayer(new CoolKidGlassesLayer(this));
     }
 }
