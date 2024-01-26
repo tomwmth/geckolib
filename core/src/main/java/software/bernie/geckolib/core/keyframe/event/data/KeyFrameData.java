@@ -15,32 +15,32 @@ import java.util.Objects;
  * @see SoundKeyframeData
  */
 public abstract class KeyFrameData {
-	private final double startTick;
+    private final double startTick;
 
-	public KeyFrameData(double startTick) {
-		this.startTick = startTick;
-	}
+    public KeyFrameData(double startTick) {
+        this.startTick = startTick;
+    }
 
-	/**
-	 * Gets the start tick of the keyframe instruction
-	 */
-	public double getStartTick() {
-		return this.startTick;
-	}
+    /**
+     * Gets the start tick of the keyframe instruction
+     */
+    public double getStartTick() {
+        return this.startTick;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
 
-		if (obj == null || getClass() != obj.getClass())
-			return false;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
 
-		return this.hashCode() == obj.hashCode();
-	}
+        return this.hashCode() == obj.hashCode();
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hashCode(this.startTick);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this.startTick);
+    }
 }

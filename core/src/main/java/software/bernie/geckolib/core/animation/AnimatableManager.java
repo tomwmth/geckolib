@@ -23,152 +23,152 @@ import java.util.Map;
  *
  */
 public class AnimatableManager<T extends GeoAnimatable> {
-	private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
-	private final Map<String, AnimationController<T>> animationControllers;
-	private Map<DataTicket<?>, Object> extraData;
+    private final Map<String, BoneSnapshot> boneSnapshotCollection = new Object2ObjectOpenHashMap<>();
+    private final Map<String, AnimationController<T>> animationControllers;
+    private Map<DataTicket<?>, Object> extraData;
 
-	private double lastUpdateTime;
-	private boolean isFirstTick = true;
-	private double firstTickTime = -1;
+    private double lastUpdateTime;
+    private boolean isFirstTick = true;
+    private double firstTickTime = -1;
 
-	/**
-	 * Instantiates a new AnimatableManager for the given animatable, calling {@link GeoAnimatable#registerControllers} to define its controllers
-	 */
-	public AnimatableManager(GeoAnimatable animatable) {
-		ControllerRegistrar registrar = new ControllerRegistrar();
+    /**
+     * Instantiates a new AnimatableManager for the given animatable, calling {@link GeoAnimatable#registerControllers} to define its controllers
+     */
+    public AnimatableManager(GeoAnimatable animatable) {
+        ControllerRegistrar registrar = new ControllerRegistrar();
 
-		animatable.registerControllers(registrar);
+        animatable.registerControllers(registrar);
 
-		this.animationControllers = registrar.build();
-	}
+        this.animationControllers = registrar.build();
+    }
 
-	/**
-	 * Add an {@link AnimationController} to this animatable's manager.<br>
-	 * Generally speaking you probably should have added it during {@link GeoAnimatable#registerControllers}
-	 */
-	public void addController(AnimationController controller) {
-		getAnimationControllers().put(controller.getName(), controller);
-	}
+    /**
+     * Add an {@link AnimationController} to this animatable's manager.<br>
+     * Generally speaking you probably should have added it during {@link GeoAnimatable#registerControllers}
+     */
+    public void addController(AnimationController controller) {
+        getAnimationControllers().put(controller.getName(), controller);
+    }
 
-	/**
-	 * Removes an {@link AnimationController} from this manager by the given name, if present.
-	 */
-	public void removeController(String name) {
-		getAnimationControllers().remove(name);
-	}
+    /**
+     * Removes an {@link AnimationController} from this manager by the given name, if present.
+     */
+    public void removeController(String name) {
+        getAnimationControllers().remove(name);
+    }
 
-	public Map<String, AnimationController<T>> getAnimationControllers() {
-		return this.animationControllers;
-	}
+    public Map<String, AnimationController<T>> getAnimationControllers() {
+        return this.animationControllers;
+    }
 
-	public Map<String, BoneSnapshot> getBoneSnapshotCollection() {
-		return this.boneSnapshotCollection;
-	}
+    public Map<String, BoneSnapshot> getBoneSnapshotCollection() {
+        return this.boneSnapshotCollection;
+    }
 
-	public void clearSnapshotCache() {
-		getBoneSnapshotCollection().clear();
-	}
+    public void clearSnapshotCache() {
+        getBoneSnapshotCollection().clear();
+    }
 
-	public double getLastUpdateTime() {
-		return this.lastUpdateTime;
-	}
+    public double getLastUpdateTime() {
+        return this.lastUpdateTime;
+    }
 
-	public void updatedAt(double updateTime) {
-		this.lastUpdateTime = updateTime;
-	}
+    public void updatedAt(double updateTime) {
+        this.lastUpdateTime = updateTime;
+    }
 
-	public double getFirstTickTime() {
-		return this.firstTickTime;
-	}
+    public double getFirstTickTime() {
+        return this.firstTickTime;
+    }
 
-	public void startedAt(double time) {
-		this.firstTickTime = time;
-	}
+    public void startedAt(double time) {
+        this.firstTickTime = time;
+    }
 
-	public boolean isFirstTick() {
-		return this.isFirstTick;
-	}
+    public boolean isFirstTick() {
+        return this.isFirstTick;
+    }
 
-	protected void finishFirstTick() {
-		this.isFirstTick = false;
-	}
+    protected void finishFirstTick() {
+        this.isFirstTick = false;
+    }
 
-	/**
-	 * Set a custom data point to be used later
-	 * @param dataTicket The DataTicket for the data point
-	 * @param data The piece of data to store
-	 */
-	public <D> void setData(DataTicket<D> dataTicket, D data) {
-		if (this.extraData == null)
-			this.extraData = new Object2ObjectOpenHashMap<>();
+    /**
+     * Set a custom data point to be used later
+     * @param dataTicket The DataTicket for the data point
+     * @param data The piece of data to store
+     */
+    public <D> void setData(DataTicket<D> dataTicket, D data) {
+        if (this.extraData == null)
+            this.extraData = new Object2ObjectOpenHashMap<>();
 
-		this.extraData.put(dataTicket, data);
-	}
+        this.extraData.put(dataTicket, data);
+    }
 
-	/**
-	 * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored
-	 */
-	public <D> D getData(DataTicket<D> dataTicket) {
-		return this.extraData != null ? dataTicket.getData(this.extraData) : null;
-	}
+    /**
+     * Retrieve a custom data point that was stored earlier, or null if it hasn't been stored
+     */
+    public <D> D getData(DataTicket<D> dataTicket) {
+        return this.extraData != null ? dataTicket.getData(this.extraData) : null;
+    }
 
-	/**
-	 * Attempt to trigger an animation from a given controller name and registered triggerable animation name.<br>
-	 * This pseudo-overloaded method checks each controller in turn until one of them accepts the trigger.<br>
-	 * This can be sped up by specifying which controller you intend to receive the trigger in {@link AnimatableManager#tryTriggerAnimation(String, String)}
-	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link software.bernie.geckolib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
-	 */
-	public void tryTriggerAnimation(String animName) {
-		for (AnimationController<?> controller : getAnimationControllers().values()) {
-			if (controller.tryTriggerAnimation(animName))
-				return;
-		}
-	}
+    /**
+     * Attempt to trigger an animation from a given controller name and registered triggerable animation name.<br>
+     * This pseudo-overloaded method checks each controller in turn until one of them accepts the trigger.<br>
+     * This can be sped up by specifying which controller you intend to receive the trigger in {@link AnimatableManager#tryTriggerAnimation(String, String)}
+     * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link software.bernie.geckolib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
+     */
+    public void tryTriggerAnimation(String animName) {
+        for (AnimationController<?> controller : getAnimationControllers().values()) {
+            if (controller.tryTriggerAnimation(animName))
+                return;
+        }
+    }
 
-	/**
-	 * Attempt to trigger an animation from a given controller name and registered triggerable animation name
-	 * @param controllerName The name of the controller name the animation belongs to
-	 * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link software.bernie.geckolib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
-	 */
-	public void tryTriggerAnimation(String controllerName, String animName) {
-		AnimationController<?> controller = getAnimationControllers().get(controllerName);
+    /**
+     * Attempt to trigger an animation from a given controller name and registered triggerable animation name
+     * @param controllerName The name of the controller name the animation belongs to
+     * @param animName The name of animation to trigger. This needs to have been registered with the controller via {@link software.bernie.geckolib.core.animation.AnimationController#triggerableAnim AnimationController.triggerableAnim}
+     */
+    public void tryTriggerAnimation(String controllerName, String animName) {
+        AnimationController<?> controller = getAnimationControllers().get(controllerName);
 
-		if (controller != null)
-			controller.tryTriggerAnimation(animName);
-	}
+        if (controller != null)
+            controller.tryTriggerAnimation(animName);
+    }
 
-	/**
-	 * Helper class for the AnimatableManager to cleanly register controllers in one shot at instantiation for efficiency
-	 */
-	// TODO 1.20+ Convert to record
-	public static final class ControllerRegistrar {
-		private final List<AnimationController<? extends GeoAnimatable>> controllers = new ObjectArrayList<>(4);
+    /**
+     * Helper class for the AnimatableManager to cleanly register controllers in one shot at instantiation for efficiency
+     */
+    // TODO 1.20+ Convert to record
+    public static final class ControllerRegistrar {
+        private final List<AnimationController<? extends GeoAnimatable>> controllers = new ObjectArrayList<>(4);
 
-		/**
-		 * Add an {@link AnimationController} to this registrar
-		 */
-		public ControllerRegistrar add(AnimationController<?>... controllers) {
-			this.controllers.addAll(Arrays.asList(controllers));
+        /**
+         * Add an {@link AnimationController} to this registrar
+         */
+        public ControllerRegistrar add(AnimationController<?>... controllers) {
+            this.controllers.addAll(Arrays.asList(controllers));
 
-			return this;
-		}
+            return this;
+        }
 
-		/**
-		 * Remove an {@link AnimationController} from this registrar by name.<br>
-		 * This is mostly only useful if you're sub-classing an existing animatable object and want to modify the super list
-		 */
-		public ControllerRegistrar remove(String name) {
-			this.controllers.removeIf(controller -> controller.getName().equals(name));
+        /**
+         * Remove an {@link AnimationController} from this registrar by name.<br>
+         * This is mostly only useful if you're sub-classing an existing animatable object and want to modify the super list
+         */
+        public ControllerRegistrar remove(String name) {
+            this.controllers.removeIf(controller -> controller.getName().equals(name));
 
-			return this;
-		}
+            return this;
+        }
 
-		private <T extends GeoAnimatable> Object2ObjectArrayMap<String, AnimationController<T>> build() {
-			Object2ObjectArrayMap<String, AnimationController<?>> map = new Object2ObjectArrayMap<>(this.controllers.size());
+        private <T extends GeoAnimatable> Object2ObjectArrayMap<String, AnimationController<T>> build() {
+            Object2ObjectArrayMap<String, AnimationController<?>> map = new Object2ObjectArrayMap<>(this.controllers.size());
 
-			this.controllers.forEach(controller -> map.put(controller.getName(), controller));
+            this.controllers.forEach(controller -> map.put(controller.getName(), controller));
 
-			return (Object2ObjectArrayMap)map;
-		}
-	}
+            return (Object2ObjectArrayMap)map;
+        }
+    }
 }

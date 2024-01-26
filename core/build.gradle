@@ -7,23 +7,15 @@ archivesBaseName = "geckolib-core"
 
 repositories {
     mavenCentral()
-    maven {
-        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-        content {
-            includeGroup "com.eliotlash.mclib"
-        }
-    }
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    toolchain.languageVersion = JavaLanguageVersion.of(8)
     withSourcesJar()
-    withJavadocJar()
 }
 
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = 'UTF-8'
-    it.options.release = 17
 }
 
 sourcesJar {
@@ -31,13 +23,7 @@ sourcesJar {
     from(rootProject.file("LICENSE"))
 }
 
-javadocJar {
-    //Include the license into  the sourcesJar
-    from(rootProject.file("LICENSE"))
-}
-
 dependencies {
-    implementation "com.eliotlash.mclib:mclib:${mclib_version}"
     implementation "com.google.code.gson:gson:${gson_version}"
     implementation "it.unimi.dsi:fastutil:${fastutil_version}"
 }
@@ -62,20 +48,20 @@ jar {
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifactId base.archivesName.get()
+            groupId = group
+            artifactId = archivesBaseName
+            version = version
+
             from components.java
         }
     }
     repositories {
-        if (System.getenv("cloudUsername") == null  && findProperty("cloudUsername") == null) {
-            mavenLocal()
-        }
-        else maven {
-            name =  "cloudsmith"
-            url = "https://maven.cloudsmith.io/geckolib3/geckolib/"
+        maven {
+            name =  "AlpineCloud"
+            url = "https://lib.alpn.cloud/alpine-public"
             credentials {
-                username = System.getenv("cloudUsername")
-                password = System.getenv("cloudPassword")
+                username = System.getenv("ALPINE_MAVEN_NAME")
+                password = System.getenv("ALPINE_MAVEN_SECRET")
             }
         }
     }

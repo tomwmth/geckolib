@@ -9,37 +9,37 @@ import software.bernie.geckolib.core.molang.MolangParser;
  * Used to handle values and expressions specific to Molang deserialization
  */
 public class MolangValue implements IValue {
-	private final IValue value;
-	private final boolean returns;
+    private final IValue value;
+    private final boolean returns;
 
-	public MolangValue(IValue value) {
-		this(value, false);
-	}
+    public MolangValue(IValue value) {
+        this(value, false);
+    }
 
-	public MolangValue(IValue value, boolean isReturn) {
-		this.value = value;
-		this.returns = isReturn;
-	}
+    public MolangValue(IValue value, boolean isReturn) {
+        this.value = value;
+        this.returns = isReturn;
+    }
 
-	@Override
-	public double get() {
-		return this.value.get();
-	}
+    @Override
+    public double get() {
+        return this.value.get();
+    }
 
-	public IValue getValueHolder() {
-		return this.value;
-	}
+    public IValue getValueHolder() {
+        return this.value;
+    }
 
-	public boolean isReturnValue() {
-		return this.returns;
-	}
+    public boolean isReturnValue() {
+        return this.returns;
+    }
 
-	public boolean isConstant() {
-		return getClass() == MolangValue.class && value instanceof Constant;
-	}
+    public boolean isConstant() {
+        return getClass() == MolangValue.class && value instanceof Constant;
+    }
 
-	@Override
-	public String toString() {
-		return (this.returns ? MolangParser.RETURN : "") + this.value.toString();
-	}
+    @Override
+    public String toString() {
+        return (this.returns ? MolangParser.RETURN : "") + this.value.toString();
+    }
 }

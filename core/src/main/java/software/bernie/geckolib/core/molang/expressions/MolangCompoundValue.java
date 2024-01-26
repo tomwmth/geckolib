@@ -12,37 +12,37 @@ import java.util.StringJoiner;
  * An extension of the {@link MolangValue} class, allowing for compound expressions.
  */
 public class MolangCompoundValue extends MolangValue {
-	public final List<MolangValue> values = new ObjectArrayList<>();
-	public final Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
+    public final List<MolangValue> values = new ObjectArrayList<>();
+    public final Map<String, LazyVariable> locals = new Object2ObjectOpenHashMap<>();
 
-	public MolangCompoundValue(MolangValue baseValue) {
-		super(baseValue);
+    public MolangCompoundValue(MolangValue baseValue) {
+        super(baseValue);
 
-		this.values.add(baseValue);
-	}
+        this.values.add(baseValue);
+    }
 
-	@Override
-	public double get() {
-		double value = 0;
+    @Override
+    public double get() {
+        double value = 0;
 
-		for (MolangValue molangValue : this.values) {
-			value = molangValue.get();
-		}
+        for (MolangValue molangValue : this.values) {
+            value = molangValue.get();
+        }
 
-		return value;
-	}
+        return value;
+    }
 
-	@Override
-	public String toString() {
-		StringJoiner builder = new StringJoiner("; ");
+    @Override
+    public String toString() {
+        StringJoiner builder = new StringJoiner("; ");
 
-		for (MolangValue molangValue : this.values) {
-			builder.add(molangValue.toString());
+        for (MolangValue molangValue : this.values) {
+            builder.add(molangValue.toString());
 
-			if (molangValue.isReturnValue())
-				break;
-		}
+            if (molangValue.isReturnValue())
+                break;
+        }
 
-		return builder.toString();
-	}
+        return builder.toString();
+    }
 }

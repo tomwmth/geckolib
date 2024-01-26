@@ -12,32 +12,54 @@ import java.util.List;
 /**
  * Stores a triplet of {@link Keyframe Keyframes} in an ordered stack
  */
-public record KeyframeStack<T extends Keyframe<?>>(List<T> xKeyframes, List<T> yKeyframes, List<T> zKeyframes) {
-	public KeyframeStack() {
-		this(new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>());
-	}
+public final class KeyframeStack<T extends Keyframe<?>> {
+    private final List<T> xKeyframes;
+    private final List<T> yKeyframes;
+    private final List<T> zKeyframes;
 
-	public static <F extends Keyframe<?>> KeyframeStack<F> from(KeyframeStack<F> otherStack) {
-		return new KeyframeStack<>(otherStack.xKeyframes, otherStack.yKeyframes, otherStack.zKeyframes);
-	}
+    public KeyframeStack(List<T> xKeyframes, List<T> yKeyframes, List<T> zKeyframes) {
+        this.xKeyframes = xKeyframes;
+        this.yKeyframes = yKeyframes;
+        this.zKeyframes = zKeyframes;
+    }
 
-	public double getLastKeyframeTime() {
-		double xTime = 0;
-		double yTime = 0;
-		double zTime = 0;
+    public KeyframeStack() {
+        this(new ObjectArrayList<>(), new ObjectArrayList<>(), new ObjectArrayList<>());
+    }
 
-		for (T frame : xKeyframes()) {
-			xTime += frame.length();
-		}
+    public List<T> xKeyframes() {
+        return this.xKeyframes;
+    }
 
-		for (T frame : yKeyframes()) {
-			yTime += frame.length();
-		}
+    public List<T> yKeyframes() {
+        return this.yKeyframes;
+    }
 
-		for (T frame : zKeyframes()) {
-			zTime += frame.length();
-		}
+    public List<T> zKeyframes() {
+        return this.zKeyframes;
+    }
 
-		return Math.max(xTime, Math.max(yTime, zTime));
-	}
+    public double getLastKeyframeTime() {
+        double xTime = 0;
+        double yTime = 0;
+        double zTime = 0;
+
+        for (T frame : this.xKeyframes()) {
+            xTime += frame.length();
+        }
+
+        for (T frame : this.yKeyframes()) {
+            yTime += frame.length();
+        }
+
+        for (T frame : this.zKeyframes()) {
+            zTime += frame.length();
+        }
+
+        return Math.max(xTime, Math.max(yTime, zTime));
+    }
+
+    public static <F extends Keyframe<?>> KeyframeStack<F> from(KeyframeStack<F> otherStack) {
+        return new KeyframeStack<>(otherStack.xKeyframes, otherStack.yKeyframes, otherStack.zKeyframes);
+    }
 }

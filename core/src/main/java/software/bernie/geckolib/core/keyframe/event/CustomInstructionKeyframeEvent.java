@@ -14,16 +14,16 @@ import software.bernie.geckolib.core.keyframe.event.data.CustomInstructionKeyfra
  * Called when a custom instruction keyframe is encountered
  */
 public class CustomInstructionKeyframeEvent<T extends GeoAnimatable> extends KeyFrameEvent<T, CustomInstructionKeyframeData> {
-	public CustomInstructionKeyframeEvent(T entity, double animationTick, AnimationController<T> controller,
-										  CustomInstructionKeyframeData customInstructionKeyframeData) {
-		super(entity, animationTick, controller, customInstructionKeyframeData);
-	}
+    public CustomInstructionKeyframeEvent(T entity, double animationTick, AnimationController<T> controller,
+                                          CustomInstructionKeyframeData customInstructionKeyframeData) {
+        super(entity, animationTick, controller, customInstructionKeyframeData);
+    }
 
-	/**
-	 * Get the {@link CustomInstructionKeyframeData} relevant to this event call
-	 */
-	@Override
-	public CustomInstructionKeyframeData getKeyframeData() {
-		return super.getKeyframeData();
-	}
+    /**
+     * Get the {@link CustomInstructionKeyframeData} relevant to this event call
+     */
+    @Override
+    public CustomInstructionKeyframeData getKeyframeData() {
+        return super.getKeyframeData();
+    }
 }

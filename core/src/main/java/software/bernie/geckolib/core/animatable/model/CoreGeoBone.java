@@ -9,111 +9,111 @@ import java.util.List;
  * Mostly a placeholder to allow for splitting up core (non-Minecraft) libraries
  */
 public interface CoreGeoBone {
-	String getName();
+    String getName();
 
-	CoreGeoBone getParent();
+    CoreGeoBone getParent();
 
-	float getRotX();
+    float getRotX();
 
-	float getRotY();
+    float getRotY();
 
-	float getRotZ();
+    float getRotZ();
 
-	float getPosX();
+    float getPosX();
 
-	float getPosY();
+    float getPosY();
 
-	float getPosZ();
+    float getPosZ();
 
-	float getScaleX();
+    float getScaleX();
 
-	float getScaleY();
+    float getScaleY();
 
-	float getScaleZ();
+    float getScaleZ();
 
-	void setRotX(float value);
+    void setRotX(float value);
 
-	void setRotY(float value);
+    void setRotY(float value);
 
-	void setRotZ(float value);
+    void setRotZ(float value);
 
-	default void updateRotation(float xRot, float yRot, float zRot) {
-		setRotX(xRot);
-		setRotY(yRot);
-		setRotZ(zRot);
-	}
+    default void updateRotation(float xRot, float yRot, float zRot) {
+        setRotX(xRot);
+        setRotY(yRot);
+        setRotZ(zRot);
+    }
 
-	void setPosX(float value);
+    void setPosX(float value);
 
-	void setPosY(float value);
+    void setPosY(float value);
 
-	void setPosZ(float value);
+    void setPosZ(float value);
 
-	default void updatePosition(float posX, float posY, float posZ) {
-		setPosX(posX);
-		setPosY(posY);
-		setPosZ(posZ);
-	}
+    default void updatePosition(float posX, float posY, float posZ) {
+        setPosX(posX);
+        setPosY(posY);
+        setPosZ(posZ);
+    }
 
-	void setScaleX(float value);
+    void setScaleX(float value);
 
-	void setScaleY(float value);
+    void setScaleY(float value);
 
-	void setScaleZ(float value);
+    void setScaleZ(float value);
 
-	default void updateScale(float scaleX, float scaleY, float scaleZ) {
-		setScaleX(scaleX);
-		setScaleY(scaleY);
-		setScaleZ(scaleZ);
-	}
+    default void updateScale(float scaleX, float scaleY, float scaleZ) {
+        setScaleX(scaleX);
+        setScaleY(scaleY);
+        setScaleZ(scaleZ);
+    }
 
-	void setPivotX(float value);
+    void setPivotX(float value);
 
-	void setPivotY(float value);
+    void setPivotY(float value);
 
-	void setPivotZ(float value);
+    void setPivotZ(float value);
 
-	default void updatePivot(float pivotX, float pivotY, float pivotZ) {
-		setPivotX(pivotX);
-		setPivotY(pivotY);
-		setPivotZ(pivotZ);
-	}
+    default void updatePivot(float pivotX, float pivotY, float pivotZ) {
+        setPivotX(pivotX);
+        setPivotY(pivotY);
+        setPivotZ(pivotZ);
+    }
 
-	float getPivotX();
+    float getPivotX();
 
-	float getPivotY();
+    float getPivotY();
 
-	float getPivotZ();
+    float getPivotZ();
 
-	boolean isHidden();
+    boolean isHidden();
 
-	boolean isHidingChildren();
+    boolean isHidingChildren();
 
-	void setHidden(boolean hidden);
+    void setHidden(boolean hidden);
 
-	void setChildrenHidden(boolean hideChildren);
+    void setChildrenHidden(boolean hideChildren);
 
-	void saveInitialSnapshot();
+    void saveInitialSnapshot();
 
-	void markScaleAsChanged();
+    void markScaleAsChanged();
 
-	void markRotationAsChanged();
+    void markRotationAsChanged();
 
-	void markPositionAsChanged();
+    void markPositionAsChanged();
 
-	boolean hasScaleChanged();
+    boolean hasScaleChanged();
 
-	boolean hasRotationChanged();
+    boolean hasRotationChanged();
 
-	boolean hasPositionChanged();
+    boolean hasPositionChanged();
 
-	void resetStateChanges();
+    void resetStateChanges();
 
-	BoneSnapshot getInitialSnapshot();
+    BoneSnapshot getInitialSnapshot();
 
-	List<? extends CoreGeoBone> getChildBones();
+    List<? extends CoreGeoBone> getChildBones();
 
-	default BoneSnapshot saveSnapshot() {
-		return new BoneSnapshot(this);
-	}
+    default BoneSnapshot saveSnapshot() {
+        return new BoneSnapshot(this);
+    }
 }
